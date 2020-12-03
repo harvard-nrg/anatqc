@@ -81,7 +81,7 @@ def do(args):
         jarray.add(task.job)
 
     # submit jobs and wait for them to finish
-    if args.submit:
+    if not args.dry_run:
         logger.info('submitting jobs')
         jarray.submit(limit=args.rate_limit)
         logger.info('waiting for all jobs to finish')

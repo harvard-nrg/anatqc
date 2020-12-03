@@ -21,7 +21,12 @@ class Task(tasks.BaseTask):
             '--output-file', self._prov,
             'mriqc',
             '--participant_label', self._sub.replace('sub-', ''),
-            '--session-id', self._ses.replace('ses-', ''),
+        ]
+        if self._ses:
+            self._command.extend([
+                '--session-id', self._ses.replace('ses-', '')
+            ])
+        self._command.extend([
             '--run-id', str(self._run),
             '--work-dir', self.workdir(),
             '--verbose-reports',
@@ -31,7 +36,7 @@ class Task(tasks.BaseTask):
             self._bids,
             self._outdir,
             'participant'
-        ]
+        ])
         if self._pipenv:
             os.chdir(self._pipenv)
             self._command[:0] = ['pipenv', 'run']

@@ -12,26 +12,41 @@ def main():
     subparsers = parser.add_subparsers(help='sub-command help')
     # get mode
     parser_get = subparsers.add_parser('get', help='get -h')
-    parser_get.add_argument('--alias', default='cbscentral')
-    parser_get.add_argument('--label')
-    parser_get.add_argument('--project')
-    parser_get.add_argument('--bids-dir')
+    parser_get.add_argument('--alias', default='cbscentral',
+        help='YAXIL authentication alias')
+    parser_get.add_argument('--label', required=True,
+        help='XNAT MR Session name')
+    parser_get.add_argument('--project',
+        help='XNAT Project name')
+    parser_get.add_argument('--bids-dir', required=True,
+        help='Output BIDS directory')
     parser_get.set_defaults(func=cli.get.do)
     # process mode
     parser_process = subparsers.add_parser('process', help='process -h')
-    parser_process.add_argument('--partition', default='default')
-    parser_process.add_argument('--scheduler', default=None)
+    parser_process.add_argument('--partition', default='default',
+        help='Job scheduler partition')
+    parser_process.add_argument('--scheduler', default=None,
+        help='Choose a specific job scheduler')
     parser_process.add_argument('--rate-limit', type=int, default=None, 
-        help='Impose a rate limit on the number of tasks executed in parallel')
-    parser_process.add_argument('--sub')
-    parser_process.add_argument('--ses')
-    parser_process.add_argument('--mod', default='T1w')
-    parser_process.add_argument('--run', default='1')
-    parser_process.add_argument('--bids-dir', required=True)
-    parser_process.add_argument('--save-xar', default='xnat.zip')
-    parser_process.add_argument('--config')
-    parser_process.add_argument('--submit', action='store_true')
-    parser_process.add_argument('--sub-tasks', nargs='+', default=['morph', 'mriqc', 'vnav'])
+        help='Rate limit the number of tasks executed in parallel (1=serial)')
+    parser_process.add_argument('--sub', required=True,
+        help='BIDS subject')
+    parser_process.add_argument('--ses',
+        help='BIDS session')
+    parser_process.add_argument('--mod', default='T1w',
+        help='BIDS modality')
+    parser_process.add_argument('--run', default='1',
+        help='BIDS run')
+    parser_process.add_argument('--bids-dir', required=True,
+        help='BIDS root directory')
+    parser_process.add_argument('--save-xar', default='AnatQC.xar',
+        help='Save XAR file')
+    parser_process.add_argument('--upload-xar', action='store_true',
+        help='Upload XAR file')
+    parser_process.add_argument('--dry-run', action='store_true',
+        help='Do not actually execute any jobs')
+    parser_process.add_argument('--sub-tasks', nargs='+', default=['morph', 'mriqc', 'vnav'],
+        help='Run only certain sub tasks')
     parser_process.set_defaults(func=cli.process.do)
     args = parser.parse_args()
 

@@ -51,11 +51,16 @@ def get_move(args, run, scan, verbose=False):
         'ArcGet.py',
         '--alias', args.alias,
         '--label', args.label,
-        '--project', args.project,
         '--output-dir', args.bids_dir,
         '--output-format', 'bids',
-        '--config', '-'
     ]
+    if args.project:
+        cmd.extend([
+            '--project', args.project
+        ])
+    cmd.extend([
+        '--config', '-'
+    ])
     if verbose:
         cmd.append('--debug')
     logger.info(sp.list2cmdline(cmd))
@@ -77,11 +82,16 @@ def get_anat(args, run, scan, verbose=False):
         'ArcGet.py',
         '--alias', args.alias,
         '--label', args.label,
-        '--project', args.project,
         '--output-dir', args.bids_dir,
         '--output-format', 'bids',
-        '--config', '-'
     ]
+    if args.project:
+        cmd.extend([
+            '--project', args.project
+        ])
+    cmd.extend([
+        '--config', '-'
+    ])
     if verbose:
         cmd.append('--debug')
     logger.info(sp.list2cmdline(cmd))

@@ -35,15 +35,16 @@ should contain `ANAT_001`, `ANAT_002`, ..., `ANAT_N` and the corresponding vNavs
 Once these notes are set, you can run the `get` command
 
 ```bash
-anatQC.py get --alias {{ xnat }} --label {{ session }} --project {{ project }} --bids-dir {{ bids directory }}
+anatQC.py get --alias {{ xnat }} --label {{ session }} --bids-dir {{ bids directory }}
 ```
 
 | placeholder            | description                | required |
 |------------------------|--------------------------------------------------------------------------------------------------------|----------|
-| `{{ xnat }}`           | XNAT alias from your [YAXIL authentication file](https://yaxil.readthedocs.io/en/latest/xnat_auth.html) |  yes     |
+| `{{ xnat }}`           | [YAXIL auth file alias](https://yaxil.readthedocs.io/en/latest/xnat_auth.html) |  yes     |
 | `{{ session }}`        | XNAT MR Session label      |  yes     |
-| `{{ project }}`        | XNAT Project               |  no      |
-| `{{ bids directory }}` | Destination BIDS directory |  no      |
+| `{{ bids directory }}` | Destination BIDS directory |  yes     |
+
+Execute `anatQC.py get --help` for more options.
 
 ## Process command
 To process your data, you must refer to your data using the [BIDS](https://bids.neuroimaging.io/) naming convention
@@ -55,8 +56,10 @@ anatQC.py process --sub {{ subject }} --ses {{ session }} --bids-dir {{ bids dir
 | placeholder             | description    | required |
 |-------------------------|----------------|----------|
 | `{{ sub }}`             | BIDS `sub-*`   |  yes     |
-| `{{ session }}`         | BIDS `ses-*`   |  yes     |
+| `{{ session }}`         | BIDS `ses-*`   |  no      |
 | `{{ bids directory }}`  | BIDS directory |  yes     |
+
+Execute `anatQC.py process --help` for more options.
 
 ## Container
 To download, build, and run the AnatQC as a container, you need to install 
@@ -81,7 +84,7 @@ singularity run --app anatqc anatqc.sif get --alias {{ xnat }} --label {{ label 
 To invoke the AnatQC [`process command`](#process-command) within the container
 
 ```bash
-singularity run --bind {{ license.txt }}:/sw/apps/freesurfer/license.txt --app anatqc anatqc.sif process --sub {{ sub }} --ses {{ ses }} --bids-dir {{ bids directory }} --rate-limit 1 --submit
+singularity run --bind {{ license.txt }}:/sw/apps/freesurfer/license.txt --app anatqc anatqc.sif process --sub {{ sub }} --ses {{ ses }} --bids-dir {{ bids directory }}
 ```
 
 > Note that the additional placeholder `{{ license.txt }}` must be replaced with
