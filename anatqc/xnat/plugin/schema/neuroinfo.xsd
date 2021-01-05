@@ -7,7 +7,7 @@
         <xs:element name="t1w_scan_id" type="xs:string" minOccurs="1" maxOccurs="1"/>
         <xs:element name="vnav_scan_id" type="xs:string" minOccurs="0" maxOccurs="1"/>
         <xs:element name="session_label" type="xs:string" minOccurs="1" maxOccurs="1"/>
-        <xs:element name="mriqc" minOccurs="0" maxOccurs="1">
+        <xs:element name="mriqc" minOccurs="1" maxOccurs="1">
           <xs:complexType>
             <xs:sequence>
               <xs:element name="cjv" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
@@ -90,7 +90,7 @@
               <xs:element name="lh_cnr" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
               <xs:element name="lh_gm_wm_cnr" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
               <xs:element name="lh_gm_csf_cnr" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
-              <xs:element name="rh_euler_holes" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+              <xs:element name="rh_euler_holes" type="xs:integer" minOccurs="1" maxOccurs="1"/>
               <xs:element name="rh_cnr" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
               <xs:element name="rh_gm_wm_cnr" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
               <xs:element name="rh_gm_csf_cnr" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
@@ -100,12 +100,13 @@
         <xs:element name="vnav" minOccurs="0" maxOccurs="1">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="vnav_min" type="xs:integer" minOccurs="1" maxOccurs="1"/>
-              <xs:element name="vnav_max" type="xs:integer" minOccurs="1" maxOccurs="1"/>
-              <xs:element name="vnav_acq" type="xs:integer" minOccurs="1" maxOccurs="1"/>
-              <xs:element name="vnav_reacq" type="xs:integer" minOccurs="1" maxOccurs="1"/>
-              <xs:element name="mean_mot_rms_per_min" type="xs:integer" minOccurs="1" maxOccurs="1"/>
-              <xs:element name="mean_mot_max_per_min" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+              <xs:element name="vnav_min" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="vnav_max" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="vnav_acq_tot" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="vnav_reacq" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="mean_mot_rms_per_min" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="mean_mot_max_per_min" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="vnav_failed" type="xs:integer" minOccurs="0" maxOccurs="1"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>

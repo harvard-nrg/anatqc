@@ -1,0 +1,662 @@
+<!-- START custom XDATScreen_report_neuroinfo_anatqc.vm wrapped in a div -->
+<div id="XDATScreen_report_neuroinfo_anatqc_div">
+#parse("screens/javascript_info.vm")
+#set ($floatFormat3 = '0.###')
+#macro (numberFormat $format $number)
+    #set ($d = $item.getClass().forName('java.text.DecimalFormat').newInstance())
+    $d.applyPattern($format)
+    $d.format($number)
+#end
+## --- report page JavaScript and CSS
+<link rel="stylesheet" type="text/css" href="$content.getURI('style/report_page.css')" />
+<script type="text/javascript" src="$content.getURI('scripts/local-scripts/report_page.js')"></script>
+<style type="text/css">
+  .bz1 { background-color: #DAD9D8; }
+  .bz_img_title { margin-bottom:2px; float:left; color:#444444 }
+</style>
+## --- get MR Session label and Project name
+#set($dtype_name = $!item.getXSIType())
+#set($id = $!item.getStringProperty("${dtype_name}.ID"))
+#set($label = $mr.getLabel())
+#if(! $!label)
+  #set($label = $!mr.getId())
+#end
+#set($subject = $!mr.getSubject().getId())
+#set($project = $!mr.getProject().getId())
+#set($user = $!data.getSession().getAttribute('user'))
+
+## --- get assessor details
+#set($assessor_id = $!item.getStringProperty("${dtype_name}.ID"))
+
+## --- set document title, build files widget, and center contentpane
+<script type="text/javascript" language="javascript">
+dojo.ready(function() {
+    // set the document title
+    document.title = "$!id";
+
+    // get variables from velocity into javascript
+    var session_label = "$!mr.getLabel()";
+    var subject_label = "$!subject.getLabel()";
+    var project_label = "$!mr.getProject()";
+    var assessor_label = "$!id";
+
+    // get assessor file url
+    nrg.getAssessorFileURL({
+      "project": project_label,
+      "subject": subject_label,
+      "experiment": session_label,
+      "assessor": assessor_label,
+      "success": function(files) { buildStuff(files) },
+      "failure": function(type, err) { console.log(err) }
+    });
+
+    function getFileByCollection(files, collection, newCollection)
+    {
+      for(i in files)
+        if(files[i].collection == collection || files[i].file_content == collection) {
+          if(newCollection)
+            files[i].collection = newCollection;
+          return files[i];
+        }
+    }
+
+    // build stuff on this page
+    function buildStuff(files)
+    {
+      if(files.length == 0)
+      {
+        nrg.toast("Oops... no assessor files to build page content. Try again later.");
+        return;
+      }
+
+      var files_table = dojo.byId("stored-files-table");
+
+      // create table headers
+      var details = "";
+      for(var key in files[0])
+        {
+          if(key != "URI")
+            details += '<th style="padding: 5px; text-align: left" class="bz1">' + key + '</th>';
+        }
+      var row = dojo.create("tr", {"innerHTML": details}, files_table);
+
+      var color = nrg.WHITE;
+      
+      // create table data
+      for(var i = 0; i < files.length; ++i)
+      {
+        var details = "";
+        var file = files[i];
+
+
+        for(var key in file)
+        {
+            if(key == "Name")
+                details += '<td style="background-color: ' + color + '; padding: 5px"><a href="' + file.URI + '">' + file.Name + '</a></td>';
+            else if(key != "URI")
+                details += '<td style="background-color: ' + color + '">' + file[key] + '</td>';
+        }
+        var row = dojo.create("tr", {"innerHTML": details}, files_table);
+        
+        if(color == nrg.SMOKE)
+            color = nrg.WHITE;
+        else
+            color = nrg.SMOKE;
+      }
+
+      var ordered_files = Array();
+      ordered_files.push(getFileByCollection(files, "T1w axial", "T1w axial"));
+      ordered_files.push(getFileByCollection(files, "Surfaces axial", "Surfaces axial"));
+      ordered_files.push(getFileByCollection(files, "Brainmask axial", "Brainmask axial"));
+      ordered_files.push(getFileByCollection(files, "vNav Motion Scores RMS", "vNav Motion Scores RMS"));
+      ordered_files.push(getFileByCollection(files, "Segmentation axial", "Segmentation axial"));
+      ordered_files.push(getFileByCollection(files, "Cortical Laterality", "Cortical Laterality"));
+      ordered_files.push(getFileByCollection(files, "Subcortical Laterality", "Subcortical Laterality"));
+      ordered_files.push(getFileByCollection(files, "MRIQC Report", "Download MRIQC Report"));
+
+      nrg.createFilesWidget(ordered_files, "files_list");
+      buildCenterViewport(ordered_files);
+    }
+
+    // build the bordercontainer center contentpane
+    function buildCenterViewport(files)
+    {
+      for(i in files)
+        {
+          var file = files[i];
+          switch(file.collection)
+            {
+            case "T1w axial":
+              node_ref = "t1-image";
+              break;
+            case "Surfaces axial":
+              node_ref = "surf-image";
+              break;
+            case "vNav Motion Scores RMS":
+              node_ref = "vnav-image";
+              break;
+            case "Segmentation axial":
+              node_ref = "seg-image";
+              break;
+            default:
+              continue;
+            }
+
+          var nano = new dojox.image.LightboxNano({"href": file.URI}, dojo.byId(node_ref));
+          dojo.create("img", {"height": "230px", "src": file.URI}, dojo.byId(node_ref));
+        }
+    }
+});
+</script>
+
+## --- required for preloader GIF
+<div id="preloader"></div>
+<!-- START Dojo OUTER MAIN -->
+<div style="z-index: 0; height: 785px" id="borderContainer" dojoType="dijit.layout.BorderContainer" gutters="true">
+  <!-- START Dojo rp_toppane -->
+  <div id="rp_toppane" dojoType="dijit.layout.ContentPane" region="top">
+    <div id="navMenu" dojoType="dijit.MenuBar">
+      <div id="rp_main_menubaritem" dojoType="dijit.PopupMenuBarItem">
+        <span><img id="swirly_icon" name="swirly_icon" src="$content.getURI('images/xnat-swirly.png')" /></span>
+        <div id="rp_mainmenu" dojoType="dijit.Menu" id="mainMenu">
+          <div dojoType="dijit.MenuItem" onClick="window.location = '/app/action/LogoutUser'">Logout</div>
+        </div>
+      </div>
+      <div dojoType="dijit.PopupMenuBarItem">
+        <span>Edit</span>
+        <div dojoType="dijit.Menu" id="editMenu">
+          <div dojoType="dijit.MenuItem" onClick="" iconClass="dijitEditorIcon  dijitEditorIconCopy">Modify</div>
+          #set($deleteURL = $content.getURI("/app/action/XDATActionRouter/xdataction/delete/search_element/neuroinfo:anatqc/search_field/neuroinfo:anatqc.ID/search_value/$id"))
+          #if ($mr.canDelete($data.getSession().getAttribute("user")))
+            <div dojoType="dijit.MenuItem" onClick="window.location='$deleteURL'" iconClass="dijitEditorIcon  dijitEditorIconCut">Delete</div>
+          #end
+        </div>
+      </div>
+      <div dojoType="dijit.PopupMenuBarItem">
+        <span>View</span>
+        <div dojoType="dijit.Menu" id="viewMenu">
+          #set($viewURL = $content.getURI("/data/experiments/$id?format=xml"))
+          <div dojoType="dijit.MenuItem" onClick="window.location='$viewURL'" iconClass="">XML</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- END Dojo rp_toppane -->
+  <!-- START Dojo sidePane -->
+  <div id="sidePane" name="sidePane" dojoType="dijit.layout.ContentPane" region="leading" style="width: 220px">
+    <div id="summary" dojoType="dijit.TitlePane" title="Summary">
+      <table class="widgetTable">
+        <tr style="background-color: #DAD9D8; font-weight: bold"><td>MR Session</td></tr>
+        <tr><td class="a"><a href="/data/experiments/$!mr.getId()?format=html">$label</a></td></tr>
+        <tr style="background-color: #DAD9D8; font-weight: bold"><td>Date Acquired</td></tr>
+        <tr><td class="a">$!mr.getDate()</td></tr>
+        <tr style="background-color: #DAD9D8; font-weight: bold"><td>T1w scan</td></tr>
+        <tr><td class="a">$!item.getStringProperty("${dtype_name}/t1w_scan_id")</td></tr>
+        <tr style="background-color: #DAD9D8; font-weight: bold"><td>vNav scan</td></tr>
+        <tr><td class="a">$!item.getStringProperty("${dtype_name}/vnav_scan_id")</td></tr>
+      </table>
+    </div>
+
+    <br />
+    <div id="data" dojoType="dijit.TitlePane" title="QC Metrics">
+      <table class="widgetTable">
+        <tr style="background: #f5f5f5; border-bottom: 1px solid #bfbfbf"><td>FreeSurfer <span style="font-weight: bold; color: #cc00cc">&mdash;</span></td><td>MRIQC <span style="font-weight: bold; color: #00e6bf">&mdash;</span></td></tr>
+        <tr><td>SNR Tot:</td><td class="mriqc-bar" align="right">#numberFormat($floatFormat3 $!item.getProperty("mriqc/snr_total"))</td></tr>
+        <tr><td>EFC:</td><td class="mriqc-bar" align="right">#numberFormat($floatFormat3 $!item.getProperty("mriqc/efc"))</td></tr>
+        <tr><td>FWHM Avg:</td><td class="mriqc-bar" align="right">#numberFormat($floatFormat3 $!item.getProperty("mriqc/fwhm_avg"))</td></tr>
+        <tr><td>GM SNR:</td><td class="mriqc-bar" align="right">#numberFormat($floatFormat3 $!item.getProperty("mriqc/snr_gm"))</td></tr>
+        <tr><td>WM SNR:</td><td class="morph-bar" align="right">#numberFormat($floatFormat3 $!item.getProperty("morph/wm_anat_snr"))</td></tr>
+        <tr><td>CNR:</td><td class="morph-bar" align="right">#numberFormat($floatFormat3 $!item.getProperty("morph/mri_cnr_tot"))</td></tr>
+        <tr style="border: 1px solid #bfbfbf"><td style="padding: 4px" class="bz1" colspan="2">Hemispheres</td></tr>
+        <tr><td style="border:0px; padding:0px" colspan="2">
+          <table class="widgetTable">
+            <tr style="background: #f5f5f5; border-bottom: 1px solid #bfbfbf">
+              <td>Metric</td>
+              <td align="right">Left</td>
+              <td align="right">Right</td>
+            </tr>
+            <tr>
+              <td>Euler Holes</td>
+              <td align="right">$!item.getProperty("morph/lh_euler_holes")</td>
+              <td align="right" class="morph-bar">$!item.getProperty("morph/rh_euler_holes")</td>
+            </tr>
+            <tr>
+              <td>CNR</td>
+              <td align="right">$!item.getProperty("morph/lh_cnr")</td>
+              <td align="right" class="morph-bar">$!item.getProperty("morph/rh_cnr")</td>
+            </tr>
+            <tr>
+              <td>G/W CNR</td>
+              <td align="right">$!item.getProperty("morph/lh_gm_wm_cnr")</td>
+              <td align="right" class="morph-bar">$!item.getProperty("morph/rh_gm_wm_cnr")</td>
+            </tr>
+            <tr>
+              <td>G/CSF CNR</td>
+              <td align="right">$!item.getProperty("morph/lh_gm_csf_cnr")</td>
+              <td align="right" class="morph-bar">$!item.getProperty("morph/rh_gm_csf_cnr")</td>
+            </tr>
+          </table>
+        </td></tr>
+        #set($vnav_scan = $!item.getProperty('${dtype_name}/vnav_scan_id'))
+        #if ($vnav_scan != 'n/a')
+          <tr style="border: 1px solid #bfbfbf"><td style="padding: 4px" class="bz1" colspan="2">vNav</td></tr>
+          <tr id="vnav_minmax"><td>Settings</td><td align="right">$!item.getProperty("vnav/vnav_min") &#8594; $!item.getProperty("vnav/vnav_max")</td></tr>
+          <tr id="vnav_minmax"><td>Motion Score RMS</td><td align="right">#numberFormat($floatFormat3 $!item.getProperty("vnav/mean_mot_rms_per_min"))</td></tr>
+          <tr id="vnav_minmax"><td>Motion Score Max</td><td align="right">#numberFormat($floatFormat3 $!item.getProperty("vnav/mean_mot_max_per_min"))</td></tr>
+          <tr id="vnav_acq"><td>vNav Acq</td><td align="right">$!item.getProperty("vnav/vnav_acq_tot")</td></tr>
+          <tr id="vnav_reacq"><td>vNav Reacq</td><td align="right">$!item.getProperty("vnav/vnav_reacq")</td></tr>
+          #set($moco_fail = $!item.getProperty("vnav/vnav_failed"))
+          #if ($moco_fail == 1)
+            <tr id="moco_fail"><td>Failed</td><td align="right">yes</td><tr>
+          #else
+            <tr id="moco_fail"><td>Failed</td><td align="right">no</td><tr>
+          #end
+        #end
+      </table>
+    </div>
+    <br />
+    <div id="files_list"></div>
+    <br/>
+  </div>
+  <!-- END Dojo sidePane -->
+  <!-- START Dojo center -->
+  <div id="center" dojoType="dijit.layout.TabContainer" region="center">
+    <!-- START Dojo "Images" tab -->
+    <div id="anatqc-images-div" dojoType="dijit.layout.ContentPane" title="Images"  style="padding:0px;margin:0px;border:0px;">
+      <table id="anatqc-images-table" style="padding:0px;margin:0px;border:0px;" cellspacing="10">
+        <tr>
+          <td>
+            <table border="0" cellspacing="0" cellpadding="0" style="border: 1px solid #ECECEC; padding: 5px;">
+              <tr>
+                <td align="left" class="bz_img_title">T1w</td>
+              </tr>
+              <tr>
+                <td colspan="2"><a id="t1-image"></a></td>
+              </tr>
+            </table>
+          </td><td>
+            <table border="0" cellspacing="0" cellpadding="0" style="border: 1px solid #ECECEC; padding: 5px;">
+              <tr>
+                <td align="left" class="bz_img_title">WM/Pial Surface</td>
+              </tr>
+              <tr>
+                <td colspan="2"><a id="surf-image"></a></td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <table border="0" cellspacing="0" cellpadding="0" style="border: 1px solid #ECECEC; padding: 5px;">
+              <tr>
+                <td align="left" class="bz_img_title">vNAV Motion Scores (RMS)</td>
+              </tr>
+              <tr>
+                <td colspan="2"><a id="vnav-image"></a></td>
+              </tr>
+            </table>
+          </td>
+          <td>
+            <table border="0" cellspacing="0" cellpadding="0" style="border: 1px solid #ECECEC; padding: 5px;">
+              <tr>
+                <td align="left" class="bz_img_title">Segmentation</td>
+              </tr>
+              <tr>
+                <td colspan="2"><a id="seg-image"></a></td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <!-- END Dojo "Images" tab -->
+    <!-- START Dojo "MRIQC" tab -->
+    <div class="mriqc-tab" dojoType="dijit.layout.ContentPane" title="MRIQC IQMs">
+      <table style="width: 100%" border="0" cellspacing="0" cellpadding="0" id="mriqc-table">
+        <tr>
+          <th class="mriqc-key">Metric</th>
+          <th class="mriqc-val">Value</th>
+        </tr>              
+          <td class="mriqc-key">cjv</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/cjv"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">cnr</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/cnr"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">efc</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/efc"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">fber</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/fber"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">fwhm_avg</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/fwhm_avg"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">fwhm_x</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/fwhm_x"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">fwhm_y</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/fwhm_y"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">fwhm_z</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/fwhm_z"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">icvs_csf</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/icvs_csf"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">icvs_gm</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/icvs_gm"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">icvs_wm</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/icvs_wm"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">inu_med</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/inu_med"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">inu_range</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/inu_range"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">qi_1</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/qi_1"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">qi_2</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/qi_2"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">rpve_csf</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/rpve_csf"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">rpve_gm</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/rpve_gm"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">rpve_wm</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/rpve_wm"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">size_x</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/size_x"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">size_y</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/size_y"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">size_z</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/size_z"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">snr_csf</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/snr_csf"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">snr_gm</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/snr_gm"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">snr_total</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/snr_total"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">snr_wm</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/snr_wm"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">snrd_csf</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/snrd_csf"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">snrd_gm</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/snrd_gm"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">snrd_total</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/snrd_total"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">snrd_wm</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/snrd_wm"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">spacing_x</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/spacing_x"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">spacing_y</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/spacing_y"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">spacing_z</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/spacing_z"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_bg_k</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_bg_k"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_bg_mad</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_bg_mad"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_bg_mean</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_bg_mean"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_bg_median</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_bg_median"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_bg_n</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_bg_n"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_bg_p05</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_bg_p05"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_bg_p95</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_bg_p95"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_bg_stdv</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_bg_stdv"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_csf_k</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_csf_k"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_csf_mad</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_csf_mad"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_csf_mean</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_csf_mean"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_csf_median</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_csf_median"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_csf_n</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_csf_n"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_csf_p05</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_csf_p05"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_csf_p95</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_csf_p95"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_csf_stdv</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_csf_stdv"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_gm_k</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_gm_k"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_gm_mad</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_gm_mad"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_gm_mean</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_gm_mean"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_gm_median</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_gm_median"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_gm_n</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_gm_n"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_gm_p05</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_gm_p05"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_gm_p95</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_gm_p95"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_gm_stdv</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_gm_stdv"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_wm_k</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_wm_k"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_wm_mad</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_wm_mad"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_wm_mean</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_wm_mean"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_wm_median</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_wm_median"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_wm_n</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_wm_n"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_wm_p05</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_wm_p05"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_wm_p95</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_wm_p95"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">summary_wm_stdv</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_wm_stdv"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">tpm_overlap_csf</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/tpm_overlap_csf"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">tpm_overlap_gm</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/tpm_overlap_gm"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">tpm_overlap_wm</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/tpm_overlap_wm"))</td>
+        </tr>
+        <tr>
+          <td class="mriqc-key">wm2max</td>
+          <td class="mriqc-val">#numberFormat($floatFormat3 $!item.getProperty("mriqc/wm2max"))</td>
+        </tr>     
+      </table>
+    </div>
+    <style type="text/css">
+      .mriqc-tab tr:nth-child(odd){ 
+        background: #dad9d8;
+      }
+      .mriqc-key {
+        font-size: 10px;
+        width: 200px;
+        padding: 8px;
+        text-align: left;
+      }
+      .mriqc-val {
+        font-size: 10px;
+        text-align: left;
+      }
+      .morph-bar {
+        border-right: 2px solid #cc00cc;
+      }
+      .mriqc-bar {
+        border-right: 2px solid #00e6bf;
+      }
+    </style>
+    <!-- END Dojo "MRIQC" tab -->
+    <!-- START Dojo "Stored Files" tab -->
+    <div id="stored-files" dojoType="dijit.layout.ContentPane" title="All Stored Files">
+      <table style="width: 100%" border="0" cellspacing="0" cellpadding="0" id="stored-files-table"></table>
+    </div>
+    <!-- END Dojo "Stored Files" tab -->
+  </div>
+</div>
+<!-- END Dojo OUTER MAIN -->
+<!-- ================================================================================
+Script to add stuff and change UI elements.
+This stuff is added to help with an ecmasscript parser
+-->
+<script type="text/javascript">
+if(! top.hnrg) {
+  top.hnrg = {};
+}
+// ================================================================================
+// Here we're changing XNAT core UI display elements. For now, just hiding the
+// leftBar which takes up screen real-estate.
+//
+// Note: This has to happen BEFORE the dojo.ready() events happen, since I could
+// not get Dojo to resize all the elements after changing the size of an element
+// not handled by dojo to begin with.
+// ================================================================================
+function changeXNATElements() {
+  if(document.getElementsByClassName) {
+    top.hnrg.leftBar = document.getElementsByClassName('leftBar')[0];
+    if(top.hnrg.leftBar) {
+      top.hnrg.leftBar.style.display = "none";
+    }
+  } else {
+    if( dojo && dojo.query ) {
+      top.hnrg.leftBar = dojo.query('.leftBar')[0];
+      if(top.hnrg.leftBar) {
+        top.hnrg.leftBar.style.display = "none";
+      }
+    }
+  }
+}
+changeXNATElements();
+if(! top.hnrg.leftBar) {
+  // Just in case, check if it happened and if not, do it again.
+  dojo.ready(changeXNATElements);
+}
+
+</script>
+</div>
+<!-- END custom XDATScreen_report_neuroinfo_anatqc.vm wrapped in a div -->
