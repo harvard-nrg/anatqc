@@ -3,14 +3,16 @@ import re
 import sys
 import json
 import yaml
+import yaxil
 import glob
 import math
 import logging
 import executors
 import tempfile as tf
 import subprocess as sp
-from anatqc.bids import BIDS
 from executors.models import Job, JobArray
+from anatqc.bids import BIDS
+from anatqc.xnat import Report
 import anatqc.tasks.mriqc as mriqc
 import anatqc.tasks.vnav as vnav
 import anatqc.tasks.morph as morph
@@ -94,3 +96,15 @@ def do(args):
         logger.info('%s/%s jobs completed', complete, numjobs)
         if failed > 0:
             sys.exit(1)
+
+    # save and upload XAR file
+    if args.xnat_upload:
+        with tf.NamedTemporaryFile(prefix='anatqc-', suffix='.xar', delete=False) as fo:
+            R = Report(args.bids_dir, args.sub, args.ses, args.run)
+            logger.info('building xnat archive file %s', fo.name)
+            R.build_assessment(fo)
+        logger.info('uploading %s to %s', fo.name, args.xnat_upload)
+        auth = yaxil.auth(args.xnat_upload)
+        yaxil.storexar(auth, fo.name)
+        logger.info('removing %s', fo.name)
+        os.remove(fo.name)

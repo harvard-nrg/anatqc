@@ -39,10 +39,8 @@ def main():
         help='BIDS run')
     parser_process.add_argument('--bids-dir', required=True,
         help='BIDS root directory')
-    parser_process.add_argument('--save-xar', default='AnatQC.xar',
-        help='Save XAR file')
-    parser_process.add_argument('--upload-xar', action='store_true',
-        help='Upload XAR file')
+    parser_process.add_argument('--xnat-upload',
+        help='Upload XNAT archive to the provided XNAT')
     parser_process.add_argument('--dry-run', action='store_true',
         help='Do not actually execute any jobs')
     parser_process.add_argument('--sub-tasks', nargs='+', default=['morph', 'mriqc', 'vnav'],

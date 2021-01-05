@@ -1,5 +1,6 @@
 import re
 import os
+import io
 import sys
 import glob
 import yaml
@@ -59,9 +60,10 @@ class Report:
         for task in self.dirs.keys():
             d = os.path.join(
                 self.bids,
+                'derivatives',
                 'anatqc-' + task,
-                self.sub,
-                self.ses,
+                'sub-' + self.sub.replace('sub-', ''),
+                'ses-' + self.ses.replace('ses-', ''),
                 'anat'
             )
             mod = 'T1w'
@@ -80,7 +82,12 @@ class Report:
         logger.debug('mriqc dir: %s', self.dirs['mriqc'])
         logger.debug('vnav dir: %s', self.dirs['vnav'])
 
-    def build_assessment(self, output='assessment.zip'):
+    def build_assessment(self, output):
+        '''
+        Build XNAT assessment
+
+        :param output: A path to a file (string) or file-like object
+        '''
         basename = BIDS.basename(**{
                 'sub': self.sub,
                 'ses': self.ses,
@@ -282,7 +289,9 @@ class Report:
             etree.SubElement(vnav_elm, 'mean_mot_max_per_min').text = str(max_per_min)
             etree.SubElement(vnav_elm, 'vnav_failed').text = str(moco_fail)
         # build the archive
-        with zipfile.ZipFile('xnat.zip', 'w') as zf:
+        if isinstance(output, str):
+            output = open(output, 'w')
+        with zipfile.ZipFile(output, 'w') as zf:
             for f in files:
                 filename = f['filename']
                 arcname = os.path.join('ASSESSMENT_FOLDER', f['URI'])
