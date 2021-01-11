@@ -53,16 +53,16 @@ From: centos:8
     "nilearn>=0.2.6,!= 0.5.0,!= 0.5.1" \
     "nipype~=1.4" \
     "nitime" \
-    "niworkflows~=1.1" \
-    "numpy" \
-    "pandas>=0.21.0" \
+    "niworkflows==1.1.12" \
+    "numpy==1.15.4" \
+    "pandas==0.23.4" \
     "pybids>=0.10.2" \
     "PyYAML" \
-    "scikit-learn>=0.19.0" \
-    "scipy" \
+    "scikit-learn==0.19.1" \
+    "scipy==1.1.0" \
     "seaborn" \
     "statsmodels" \
-    "svgutils" \
+    "svgutils==0.3.1" \
     "templateflow>=0.5.2" \
     "toml" \
     "xvfbwrapper"

@@ -31,7 +31,7 @@ class Task(tasks.BaseTask):
             '--work-dir', self.workdir(),
             '--verbose-reports',
             '--float32',
-            '--nprocs', '2',
+            '--n_procs', '2',
             '--no-sub',
             self._bids,
             self._outdir,
