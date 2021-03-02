@@ -46,10 +46,34 @@ def main():
     parser_process.add_argument('--sub-tasks', nargs='+', default=['morph', 'mriqc', 'vnav'],
         help='Run only certain sub tasks')
     parser_process.set_defaults(func=cli.process.do)
+    # tandem (run get and process)
+    parser_tandem = subparsers.add_parser('tandem', help='tandem -h')
+    parser_tandem.add_argument('--alias', default='cbscentral',
+        help='YAXIL authentication alias')
+    parser_tandem.add_argument('--label', required=True,
+        help='XNAT MR Session name')
+    parser_tandem.add_argument('--project',
+        help='XNAT Project name')
+    parser_tandem.add_argument('--bids-dir', required=True,
+        help='Output BIDS directory')
+    parser_tandem.add_argument('--partition', default='default',
+        help='Job scheduler partition')
+    parser_tandem.add_argument('--scheduler', default=None,
+        help='Choose a specific job scheduler')
+    parser_tandem.add_argument('--rate-limit', type=int, default=None, 
+        help='Rate limit the number of tasks executed in parallel (1=serial)')
+    parser_tandem.add_argument('--xnat-upload',
+        help='Upload XNAT archive to the provided XNAT')
+    parser_tandem.add_argument('--dry-run', action='store_true',
+        help='Do not actually execute any jobs')
+    parser_tandem.add_argument('--sub-tasks', nargs='+', default=['morph', 'mriqc', 'vnav'],
+        help='Run only certain sub tasks')
+    parser_tandem.set_defaults(func=cli.tandem.do)
     args = parser.parse_args()
 
     configure_logging(args.verbose)
 
+    # fire parser_*.set_defaults(func=<function>)
     args.func(args)
 
 def configure_logging(verbose):

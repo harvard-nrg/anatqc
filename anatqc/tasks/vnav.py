@@ -14,6 +14,7 @@ class Task(tasks.BaseTask):
     def __init__(self, infile, outdir, tr, tempdir=None, pipenv=None):
         self._infile = infile
         self._tr = tr
+        self.job = None
         super().__init__(outdir, tempdir, pipenv)
 
     def build(self):
@@ -36,7 +37,11 @@ class Task(tasks.BaseTask):
         # copy json sidecar into output logs directory
         image = self._infile.replace('sourcedata', '')
         sidecar = BIDS.sidecar_for_image(image)
+        sidecar = sidecar.replace('_T1vnav', '_split-1_T1vnav')
         destination = os.path.join(logdir, os.path.basename(sidecar))
+        if not os.path.exists(sidecar):
+            logger.debug('file not found %s', sidecar)
+            return
         logger.debug('copying %s to %s', sidecar, destination)
         shutil.copy2(sidecar, destination)
         # return job object

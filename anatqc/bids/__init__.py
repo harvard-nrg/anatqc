@@ -70,7 +70,7 @@ class BIDS(object):
         if rec:
             parts.append('rec-' + rec)
         if run:
-            parts.append('run-' + run)
+            parts.append('run-' + str(run))
         if brainmask:
             parts.append('mod-' + mod + '_brainmask')
         else:

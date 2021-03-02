@@ -35,7 +35,7 @@ def do(args):
     logger.debug('T1w raw: %s', raw)
     logger.debug('T1vnav sourcedata: %s', source)
 
-    # get T1w repetition time from BIDS sidecar for vNav
+    # get repetition time from T1w sidecar for vNav processing
     sidecar = os.path.join(*raw) + '.json'
     with open(sidecar) as fo:
         js = json.load(fo)
@@ -63,8 +63,9 @@ def do(args):
             outdir,
             tr
         )
-        logger.info(json.dumps(task.command, indent=1))
-        jarray.add(task.job)
+        if task.job:
+            logger.info(json.dumps(task.command, indent=1))
+            jarray.add(task.job)
 
     # mriqc job
     if 'mriqc' in args.sub_tasks:
