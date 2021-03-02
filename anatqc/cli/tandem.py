@@ -25,10 +25,12 @@ def do(args):
             re_anat = re.match('ANAT_(\d+)', note)
             if re_move:
                 run = re_move.group(1)
-                scans[run]['move'] = scan['id']
+                if int(run) == int(args.run):
+                    scans[run]['move'] = scan['id']
             if re_anat:
                 run = re_anat.group(1)
-                scans[run]['anat'] = scan['id']
+                if int(run) == int(args.run):
+                    scans[run]['anat'] = scan['id']
 
     logger.info(json.dumps(scans, indent=2))
 

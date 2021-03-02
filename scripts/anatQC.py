@@ -56,6 +56,8 @@ def main():
         help='XNAT Project name')
     parser_tandem.add_argument('--bids-dir', required=True,
         help='Output BIDS directory')
+    parser_tandem.add_argument('--run', default='1',
+        help='BIDS run')
     parser_tandem.add_argument('--partition', default='default',
         help='Job scheduler partition')
     parser_tandem.add_argument('--scheduler', default=None,
