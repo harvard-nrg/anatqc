@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 def do(args):
     # query "MOVE_\d+" and "ANAT_\d+" into a dictionary
-    auth = yaxil.auth(args.alias)
+    auth = anatqc.cli.get.getauth(args)
     with yaxil.session(auth) as ses:
         scans = col.defaultdict(dict)
         for scan in ses.scans(label=args.label, project=args.project):
