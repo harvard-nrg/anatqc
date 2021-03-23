@@ -16,7 +16,6 @@ from anatqc.xnat import Report
 import anatqc.tasks.mriqc as mriqc
 import anatqc.tasks.vnav as vnav
 import anatqc.tasks.morph as morph
-import anatqc.cli.get
 from anatqc.state import State
 
 logger = logging.getLogger(__name__)
@@ -106,7 +105,12 @@ def do(args):
             logger.info('building xnat archive file %s', fo.name)
             R.build_assessment(fo)
         logger.info('uploading %s to %s', fo.name, args.xnat_upload)
-        auth = anatqc.cli.get.getauth(args)
+        auth = yaxil.auth2(
+            args.xnat_alias,
+            args.xnat_host,
+            args.xnat_user,
+            args.xnat_pass
+        )
         yaxil.storexar_cli(auth, fo.name)
         if not args.keep_xar:
             logger.info('removing %s', fo.name)
