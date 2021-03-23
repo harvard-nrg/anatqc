@@ -1,11 +1,33 @@
 import os
 import shutil
+import base64
 import logging
 from anatqc.bids import BIDS
 import anatqc.tasks as tasks
 from executors.models import Job
 
 logger = logging.getLogger(__name__)
+
+def make_fs_license(blob):
+    '''
+    Check for FreeSurfer license and create one from
+    base64 encoded blob if one does not exist
+
+    :param blob: Base64 encoded license text
+    :type blob: str
+    '''
+    fshome = os.environ['FREESURFER_HOME']
+    license = os.path.join(fshome, 'license.txt')
+    if not os.path.exists(license):
+        if not blob:
+            raise FsLicenseError('you must provide a --fs-license')
+        data = base64.b64decode(blob)
+        logger.debug('writing file %s', license)
+        with open(license, 'wb') as fo:
+            fo.write(data)
+
+class FsLicenseError(Exception):
+    pass
 
 class Task(tasks.BaseTask):
     def __init__(self, infile, outdir, tempdir=None, pipenv=None):

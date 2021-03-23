@@ -49,6 +49,8 @@ def main():
         help='Do not actually execute any jobs')
     parser_process.add_argument('--sub-tasks', nargs='+', default=['morph', 'mriqc', 'vnav'],
         help='Run only certain sub tasks')
+    parser_process.add_argument('--fs-license',
+        help='Base64 encoded FreeSurfer license file')
     parser_process.add_argument('--xnat-alias',
         help='YAXIL authentication alias')
     parser_process.add_argument('--xnat-host',
@@ -82,6 +84,8 @@ def main():
         help='Do not actually execute any jobs')
     parser_tandem.add_argument('--sub-tasks', nargs='+', default=['morph', 'mriqc', 'vnav'],
         help='Run only certain sub tasks')
+    parser_tandem.add_argument('--fs-license',
+        help='Base64 encoded FreeSurfer license')
     parser_tandem.add_argument('--xnat-alias',
         help='YAXIL authentication alias')
     parser_tandem.add_argument('--xnat-host',

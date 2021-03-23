@@ -43,6 +43,7 @@ def do(args):
 
     # morph job
     if 'morph' in args.sub_tasks:
+        morph.make_fs_license(args.fs_license)
         infile = os.path.join(*raw) + '.nii.gz'
         outdir = B.derivatives_dir('anatqc-morph')
         outdir = os.path.join(outdir, 'anat', raw[1])
