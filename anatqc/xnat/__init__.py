@@ -130,90 +130,65 @@ class Report:
             {
                 'filename': os.path.join(self.dirs['morph'], 'morphometrics', 'snapshots', 'img-T1w_axis-axial_mosaic.png'),
                 'URI': '{0}_T1w_axial.png'.format(aid),
-                'format': 'image/png',
-                'label': 'T1w axial',
-                'file_list': True
+                'label': 't1w-axial',
             },
             {
                 'filename': os.path.join(self.dirs['morph'], 'morphometrics', 'snapshots', 'img-aseg_axis-axial_mosaic.png'),
                 'URI': '{0}_aseg_axial.png'.format(aid),
-                'format': 'image/png',
-                'label': 'Segmentation axial',
-                'file_list': True
+                'label': 'aseg-axial',
             },
             {
                 'filename': os.path.join(self.dirs['morph'], 'morphometrics', 'snapshots', 'img-brainmask_axis-axial_mosaic.png'),
                 'URI': '{0}_brainmask_axial.png'.format(aid),
-                'format': 'image/png',
-                'label': 'Brainmask axial',
-                'file_list': True
+                'label': 'brainmask-axial',
             },
             {
                 'filename': os.path.join(self.dirs['morph'], 'morphometrics', 'snapshots', 'img-surf_axis-axial_mosaic.png'),
                 'URI': '{0}_surface_axial.png'.format(aid),
-                'format': 'image/png',
-                'label': 'Surfaces axial',
-                'file_list': True
+                'label': 'surface-axial',
             },
             {
                 'filename': os.path.join(self.dirs['morph'], 'morphometrics', 'plots', 'aparc-laterality.png'),
                 'URI': '{0}_aparc_laterality.png'.format(aid),
-                'format': 'image/png',
-                'label': 'Cortical Laterality',
-                'file_list': True
+                'label': 'aparc-laterality',
             },
             {
                 'filename': os.path.join(self.dirs['morph'], 'morphometrics', 'plots', 'aseg-laterality.png'),
                 'URI': '{0}_aseg_laterality.png'.format(aid),
-                'format': 'image/png',
-                'label': 'Subcortical Laterality',
-                'file_list': True
+                'label': 'aseg-laterality',
             },
             {
                 'filename': os.path.join(self.dirs['mriqc'], basename + '.html'),
                 'URI': '{0}_mriqc.html'.format(aid),
-                'format': 'text/html',
-                'label': 'MRIQC Report',
-                'file_list': True
-
-            },
-            {
-                'filename': os.path.join(self.dirs['vnav'], 'vNav_Motion.json'),
-                'URI': '{0}_vNav_Motion.json'.format(aid),
-                'format': 'text/html',
-                'label': 'vNav Report',
-                'file_list': True
+                'label': 'mriqc-html',
             }
         ]
         # not all T1w scans have a vNav
         if self.dirs['vnav']:
             files.extend([
                 {
+                    'filename': os.path.join(self.dirs['vnav'], 'vNav_Motion.json'),
+                    'URI': '{0}_vNav_Motion.json'.format(aid),
+                    'label': 'vnav-motion-json',
+                },
+                {
                     'filename': os.path.join(self.dirs['vnav'], 'vNavMotionScoresMax.png'),
                     'URI': '{0}_vNavMotionScoresMax.png'.format(aid),
-                    'format': 'image/png',
-                    'label': 'vNav Motion Scores Max',
-                    'file_list': True
+                    'label': 'vnav-max',
                 },
                 {
                     'filename': os.path.join(self.dirs['vnav'], 'vNavMotionScoresRMS.png'),
                     'URI': '{0}_vNavMotionScoresRMS.png'.format(aid),
-                    'format': 'image/png',
-                    'label': 'vNav Motion Scores RMS',
-                    'file_list': True
+                    'label': 'vnav-rms',
                 }
             ])
         # add xnat:out
         xnat_out = etree.SubElement(root, xnatns + 'out')
         for f in files:
             e = etree.SubElement(xnat_out, xnatns + 'file')
-            e.attrib['format'] = f['format']
             e.attrib['label'] = f['label']
             e.attrib['URI'] = f['URI']
             e.attrib['{http://www.w3.org/2001/XMLSchema-instance}type'] = 'xnat:resource'
-            if f['file_list']:
-                tags = etree.SubElement(e, xnatns + 'tags')
-                etree.SubElement(tags, xnatns + 'tag').text = 'file_list'
         # start building XML
         xnatns = '{%s}' % ns['xnat']
         etree.SubElement(root, xnatns + 'imageSession_ID').text = T1w_ds['experiment_id']
