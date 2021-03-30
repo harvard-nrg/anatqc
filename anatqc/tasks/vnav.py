@@ -33,15 +33,15 @@ class Task(tasks.BaseTask):
         if self._pipenv:
             os.chdir(self._pipenv)
             cmd[:0] = ['pipenv', 'run']
-        logdir = self.logdir()
         # copy json sidecar into output logs directory
         image = self._infile.replace('sourcedata', '')
         sidecar = BIDS.sidecar_for_image(image)
         sidecar = sidecar.replace('_T1vnav', '_split-1_T1vnav')
-        destination = os.path.join(logdir, os.path.basename(sidecar))
         if not os.path.exists(sidecar):
             logger.debug('file not found %s', sidecar)
             return
+        logdir = self.logdir()
+        destination = os.path.join(logdir, os.path.basename(sidecar))
         logger.debug('copying %s to %s', sidecar, destination)
         shutil.copy2(sidecar, destination)
         # return job object

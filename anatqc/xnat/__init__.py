@@ -95,6 +95,8 @@ class Report:
                 'mod': 'T1w'
         })
         self.getdirs()
+        if not self.dirs['morph'] or not self.dirs['mriqc']:
+            raise AssessmentError('need morph and mriqc data to build assessment')
         # initialize namespaces
         ns = {
             None: 'http://www.neuroinfo.org/neuroinfo',
@@ -293,3 +295,6 @@ class Report:
         with open(sidecar) as fo:
             js = json.load(fo)
         return js['ProtocolName']
+
+class AssessmentError(Exception):
+    pass

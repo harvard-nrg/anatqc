@@ -73,7 +73,8 @@ def get_move(args, auth, run, scan, verbose=False):
     if verbose:
         cmd.append('--debug')
     logger.info(sp.list2cmdline(cmd))
-    output = sp.check_output(cmd, input=config.encode('utf-8'))
+    if not args.dry_run:
+        sp.check_output(cmd, input=config.encode('utf-8'))
  
 def get_anat(args, auth, run, scan, verbose=False):
     config = {
@@ -103,5 +104,6 @@ def get_anat(args, auth, run, scan, verbose=False):
     if verbose:
         cmd.append('--debug')
     logger.info(sp.list2cmdline(cmd))
-    output = sp.check_output(cmd, input=config.encode('utf-8'))
+    if not args.dry_run:
+        sp.check_output(cmd, input=config.encode('utf-8'))
 
