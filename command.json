@@ -1,0 +1,132 @@
+{
+  "name": "anatqc-session",
+  "label": "anatqc-session",
+  "description": "Runs anatQC on MR Session's scans with MOVE and ANAT notes",
+  "version": "1.0.0",
+  "schema-version": "1.0",
+  "image": "anatqc:latest",
+  "type": "docker",
+  "working-directory": "/sw/apps/anatqc/",
+  "command-line": "tandem #SESSION_LABEL# #RUN# --bids-dir /bids #SUBTASKS# --xnat-upload #FSLICENSE#",
+  "override-entrypoint": false,
+  "mounts": [
+    {
+      "name": "sessiondir",
+      "writable": false,
+      "path": "/session"
+    },
+    {
+      "name": "nifti",
+      "writable": true,
+      "path": "/nifti"
+    }
+  ],
+  "environment-variables": {},
+  "ports": {},
+  "inputs": [
+    {
+      "name": "run",
+      "description": "Run number",
+      "type": "string",
+      "matcher": null,
+      "default-value": "1",
+      "required": true,
+      "replacement-key": "#RUN#",
+      "sensitive": null,
+      "command-line-flag": "--run",
+      "command-line-separator": null,
+      "true-value": null,
+      "false-value": null
+    },
+    {
+      "name": "session_label",
+      "description": "Label of the session",
+      "type": "string",
+      "matcher": null,
+      "default-value": null,
+      "required": true,
+      "replacement-key": "#SESSION_LABEL#",
+      "sensitive": null,
+      "command-line-flag": "--label",
+      "command-line-separator": null,
+      "true-value": null,
+      "false-value": null
+    },
+    {
+      "name": "subtasks",
+      "description": "Limit run to specified tasks 'morph mriqc vnav'",
+      "type": "string",
+      "matcher": null,
+      "default-value": "morph mriqc vnav",
+      "required": false,
+      "replacement-key": "#SUBTASKS#",
+      "sensitive": null,
+      "command-line-flag": "--sub-tasks",
+      "command-line-separator": null,
+      "true-value": null,
+      "false-value": null
+    },
+    {
+      "name": "fslicense",
+      "description": "FreeSurfer license",
+      "type": "string",
+      "matcher": null,
+      "default-value": null,
+      "required": true,
+      "replacement-key": "#FSLICENSE#",
+      "sensitive": null,
+      "command-line-flag": "--fs-license",
+      "command-line-separator": null,
+      "true-value": null,
+      "false-value": null
+    }
+  ],
+  "outputs": [],
+  "xnat": [
+    {
+      "name": "anatqc-session",
+      "label": "anatqc-session",
+      "description": "Run anatQC on a Session",
+      "contexts": [
+        "xnat:imageSessionData"
+      ],
+      "external-inputs": [
+        {
+          "name": "session",
+          "description": "Input session",
+          "type": "Session",
+          "matcher": null,
+          "default-value": null,
+          "required": true,
+          "replacement-key": null,
+          "sensitive": null,
+          "provides-value-for-command-input": null,
+          "provides-files-for-command-mount": "sessiondir",
+          "via-setup-command": null,
+          "user-settable": null,
+          "load-children": true
+        }
+      ],
+      "derived-inputs": [
+        {
+          "name": "session-label",
+          "description": "The session's label",
+          "type": "string",
+          "matcher": null,
+          "default-value": null,
+          "required": true,
+          "replacement-key": null,
+          "sensitive": null,
+          "provides-value-for-command-input": "session_label",
+          "provides-files-for-command-mount": null,
+          "user-settable": null,
+          "load-children": true,
+          "derived-from-wrapper-input": "session",
+          "derived-from-xnat-object-property": "label",
+          "via-setup-command": null
+        }
+      ],
+      "output-handlers": []
+    }
+  ]
+}
