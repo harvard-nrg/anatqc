@@ -68,7 +68,7 @@
     },
     {
       "name": "fslicense",
-      "description": "FreeSurfer license",
+      "description": "FreeSurfer license base64 encoded",
       "type": "string",
       "matcher": null,
       "default-value": null,
