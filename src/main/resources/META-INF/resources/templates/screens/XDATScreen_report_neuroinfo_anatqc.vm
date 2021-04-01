@@ -1,0 +1,737 @@
+#set($dtype = $!item.getXSIType())
+#set($mr_label = $!item.getStringProperty("${dtype}/session_label"))
+#set($mr_id = $!item.getStringProperty("${dtype}/imageSession_ID"))
+#set($aid = $!item.getStringProperty("${dtype}.ID"))
+
+#set ($floatFormat3 = '0.###')
+#macro (numberFormat $format $number)
+    #set ($d = $item.getClass().forName('java.text.DecimalFormat').newInstance())
+    $d.applyPattern($format)
+    $d.format($number)
+#end
+
+#set($t1w_axial = $content.getURI("/data/experiments/$!{mr_id}/assessors/$!{aid}/out/resources/t1w-axial/files/$!{aid}_T1w_axial.png"))
+#set($surface_axial = $content.getURI("/data/experiments/$!{mr_id}/assessors/$!{aid}/out/resources/surface-axial/files/$!{aid}_surface_axial.png"))
+#set($aseg_axial = $content.getURI("/data/experiments/$!{mr_id}/assessors/$!{aid}/out/resources/aseg-axial/files/$!{aid}_aseg_axial.png"))
+#set($brainmask_axial = $content.getURI("/data/experiments/$!{mr_id}/assessors/$!{aid}/out/resources/brainmask-axial/files/$!{aid}_brainmask_axial.png"))
+#set($vnav_rms = $content.getURI("/data/experiments/$!{mr_id}/assessors/$!{aid}/out/resources/vnav-rms/files/$!{aid}_vNavMotionScoresRMS.png"))
+#set($vnav_max = $content.getURI("/data/experiments/$!{mr_id}/assessors/$!{aid}/out/resources/vnav-max/files/$!{aid}_vNavMotionScoresMax.png"))
+#set($vnav_motion_json = $content.getURI("/data/experiments/$!{mr_id}/assessors/$!{aid}/out/resources/vnav-motion-json/files/$!{aid}_vNav_Motion.json"))
+#set($aparc_lat = $content.getURI("/data/experiments/$!{mr_id}/assessors/$!{aid}/out/resources/aparc-laterality/files/$!{aid}_aparc_laterality.png"))
+#set($aseg_lat = $content.getURI("/data/experiments/$!{mr_id}/assessors/$!{aid}/out/resources/aseg-laterality/files/$!{aid}_aseg_laterality.png"))
+#set($mriqc_html = $content.getURI("/data/experiments/$!{mr_id}/assessors/$!{aid}/out/resources/mriqc-html/files/$!{aid}_mriqc.html"))
+#set($vnav_scan = $!item.getProperty("${dtype}/vnav_scan_id"))
+#set($moco_fail = $!item.getProperty("vnav/vnav_failed"))
+#set($delete_url = $content.getURI("/app/action/XDATActionRouter/xdataction/delete/search_element/$!{dtype}/search_field/$!{dtype}.ID/search_value/$!{aid}"))
+
+<script>
+  $( function() {
+    $( "#tabs" ).tabs();
+    $( "#menu" ).menu();
+  });
+</script>
+
+<style>
+  .image-box {
+    border: 1px solid #ececec;
+    padding: 4px;
+  }
+
+  .pane {
+    background-color: #fff;
+    border: 1px solid grey;
+    padding: 4px;
+    font-size: 11px;
+    vertical-align: top;
+  }
+
+  .big-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .big-table td {
+    border-bottom: 1px solid #cccccc;
+    padding: 4px;
+    text-align: left;
+  }
+
+  .big-table th {
+    background-color: #f6f6f6;
+    position: sticky;
+    top: 0;
+    padding: 5px;
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
+  }
+
+  .bigtable-key {
+    width: 1%;
+  }
+
+  .big-table tr:nth-child(odd) {
+    
+  }
+
+  .big-table tr:hover {
+    background-color: #cccccc;
+  }
+
+  .sidebox {
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px solid #bfbfbf;
+  }
+
+  .sidebox th {
+    align: left;
+    background-color: #cccccc;
+    padding: 1px;
+  }
+
+  .sidebox tr:nth-child(odd) {
+    background-color: #f6f6f6;
+  }
+
+  .sidebox td { 
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+
+  .sidebox tr:hover {
+    background-color: #cccccc;
+  }
+
+  .morph-bar {
+    border-right: 2px solid #cc00cc;
+    padding-right: 4px;
+  }
+  
+  .mriqc-bar {
+    border-right: 2px solid #00e6bf;
+    padding-right: 4px;
+  }
+
+  .tile-img {
+    height: 230px;
+  }
+
+  .ui-menu { width: 65px; }
+  .ui-tabs-panel {
+    height: 683px;
+    overflow-y: auto;
+  }
+</style>
+
+<!-- border container -->
+<table style="width: 100%; height: 683px">
+  <!-- menu bar -->
+  <tr id="menu-bar">
+    <td class="pane" colspan="2">
+      <div style="margin: 2px">
+        <ul id="menu">
+          <li><div>Action</div>
+            <ul>
+              <li><div><a href=$content.getURI("/data/experiments/$!{mr_id}/assessors/$!{aid}?format=xml")>View XML</a></div></li>
+              <li><div><a href="$!{delete_url}">Delete</a></div></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </td>
+  </tr>
+  <!-- side pane -->
+  <tr id="side-pane">
+    <td class="pane" style="width: 220px">
+      <div style="margin: 2px">
+        <!-- summary table -->
+        <table class="sidebox">
+          <th colspan="2">Summary</th>
+          <tr><td>MR Session</td><td align="right"><a href="/data/experiments/$!mr_id?format=html">$!mr_label</a></td></tr>
+          <tr><td>Date Processed</td><td align="right">$!item.getStringProperty("${dtype}/date")</td></tr>
+          <tr><td>T1w scan</td><td align="right">$!item.getStringProperty("${dtype}/t1w_scan_id")</td></tr>
+          #if ($vnav_scan != 'n/a')
+          <tr><td>vNav scan</td><td align="right">$!item.getStringProperty("${dtype}/vnav_scan_id")</td></tr>
+          #end
+        </table>
+        <br />
+        <!-- QC metrics table -->
+        <table class="sidebox">
+          <th colspan="2">QC Metrics</th>
+          <tr style="background: #f5f5f5; border-bottom: 1px solid #bfbfbf">
+            <td style="padding: 3px">FreeSurfer <span style="font-weight: bold; color: #cc00cc">&mdash;</span></td>
+            <td style="padding: 3px">MRIQC <span style="font-weight: bold; color: #00e6bf">&mdash;</span></td>
+          </tr>
+          <tr><td>SNR Tot:</td><td class="mriqc-bar" align="right">#numberFormat($floatFormat3 $!item.getProperty("mriqc/snr_total"))</td></tr>
+          <tr><td>FC:</td><td class="mriqc-bar" align="right">#numberFormat($floatFormat3 $!item.getProperty("mriqc/efc"))</td></tr>
+          <tr><td>FWHM Avg:</td><td class="mriqc-bar" align="right">#numberFormat($floatFormat3 $!item.getProperty("mriqc/fwhm_avg"))</td></tr>
+          <tr><td>GM SNR:</td><td class="mriqc-bar" align="right">#numberFormat($floatFormat3 $!item.getProperty("mriqc/snr_gm"))</td></tr>
+          <tr><td>WM SNR:</td><td class="morph-bar" align="right">#numberFormat($floatFormat3 $!item.getProperty("morph/wm_anat_snr"))</td></tr>
+          <tr><td>CNR:</td><td class="morph-bar" align="right">#numberFormat($floatFormat3 $!item.getProperty("morph/mri_cnr_tot"))</td></tr>
+        </table>
+        <!-- hemispheres -->
+        <table class="sidebox" style="border-top:0px">
+          <th style="padding:2px; font-weight: normal" colspan="3">Hemispheres</th>
+          <tr style="background: #f5f5f5; border-bottom: 1px solid #bfbfbf">
+            <td style="padding: 3px">Metric</td>
+            <td style="padding: 3px" align="right">Left</td>
+            <td style="padding: 3px" align="right">Right</td>
+          </tr>
+          <tr>
+            <td>Euler Holes</td>
+            <td align="right">$!item.getProperty("morph/lh_euler_holes")</td>
+            <td align="right" class="morph-bar">$!item.getProperty("morph/rh_euler_holes")</td>
+          </tr>
+          <tr>
+            <td>CNR</td>
+            <td align="right">$!item.getProperty("morph/lh_cnr")</td>
+            <td align="right" class="morph-bar">$!item.getProperty("morph/rh_cnr")</td>
+          </tr>
+          <tr>
+            <td>G/W CNR</td>
+            <td align="right">$!item.getProperty("morph/lh_gm_wm_cnr")</td>
+            <td align="right" class="morph-bar">$!item.getProperty("morph/rh_gm_wm_cnr")</td>
+          </tr>
+          <tr>
+            <td>G/CSF CNR</td>
+            <td align="right">$!item.getProperty("morph/lh_gm_csf_cnr")</td>
+            <td align="right" class="morph-bar">$!item.getProperty("morph/rh_gm_csf_cnr")</td>
+          </tr>
+        </table>
+        #if ($vnav_scan != 'n/a')
+        <table class="sidebox" style="border-top:0px">
+          <th style="padding:2px; font-weight: normal" colspan="2">vNav</th>
+          <tr><td>Settings</td><td align="right">$!item.getProperty("vnav/vnav_min") &#8594; $!item.getProperty("vnav/vnav_max")</td></tr>
+          <tr><td>Motion Score RMS</td><td align="right">#numberFormat($floatFormat3 $!item.getProperty("vnav/mean_mot_rms_per_min"))</td></tr>
+          <tr><td>Motion Score Max</td><td align="right">#numberFormat($floatFormat3 $!item.getProperty("vnav/mean_mot_max_per_min"))</td></tr>
+          <tr><td>vNav Acq</td><td align="right">$!item.getProperty("vnav/vnav_acq_tot")</td></tr>
+          <tr><td>vNav Reacq</td><td align="right">$!item.getProperty("vnav/vnav_reacq")</td></tr>
+          #if ($moco_fail == 1)
+            <tr><td>Failed</td><td align="right">yes</td></tr>
+          #else
+            <tr><td>Failed</td><td align="right">no</td></tr>
+          #end
+        </table>
+        <br />
+        #end
+        <table class="sidebox">
+          <th colspan="2">Files</th>
+          <tr><td></td><td><a href="#" data-featherlight="$!{t1w_axial}">T1w axial</a></td></tr>
+          <tr><td></td><td><a href="#" data-featherlight="$!{surface_axial}">Surfaces axial</a></td></tr>
+          <tr><td></td><td><a href="#" data-featherlight="$!{aseg_axial}">Segmentation axial</a></td></tr>
+          <tr><td></td><td><a href="#" data-featherlight="$!{brainmask_axial}">Brainmask axial</a></td></tr>
+          #if ($vnav_scan != 'n/a')
+          <tr><td></td><td><a href="#" data-featherlight="$!{vnav_rms}">vNav Motion Scores RMS</a></td></tr>
+          #end
+          <tr><td></td><td><a href="#" data-featherlight="$!{aparc_lat}">Cortical Laterality</a></td></tr>
+          <tr><td></td><td><a href="#" data-featherlight="$!{aseg_lat}">Subcortical Laterality</a></td></tr>
+          <tr><td></td><td><a target="_blank" href="$!{mriqc_html}">MRIQC Report</a></td></tr>
+        </table>
+      </div>
+    </td>
+    <!-- tabs pane -->
+    <td id="tabs-pane" class="pane" style="vertical-align: top">
+      <div id="tabs">
+        <ul>
+          <li><a href="#images-tab">Images</a></li>
+          <li><a href="#mriqc-report-tab">MRIQC Report</a></li>
+          <li><a href="#mriqc-iqms-tab">MRIQC IQMs</a></li>
+          <li><a href="#files-tab">All Stored Files</a></li>
+        </ul>
+        <!-- begin images-tab -->
+        <div id="images-tab" style="padding:0px; margin:2px">
+          <table id="anatqc-images-table" cellspacing="10">
+            <tr>
+              <td>
+                <table class="image-box">
+                  <tr>
+                    <td align="left">T1w</td>
+                  </tr>
+                  <tr>
+                    <td colspan="2"><a href="#" data-featherlight="$!{t1w_axial}"><img class="tile-img" src="$!{t1w_axial}"></img></a></td>
+                  </tr>
+                </table>
+              </td>
+              <td>
+                <table class="image-box">
+                  <tr>
+                    <td align="left">WM/Pial Surface</td>
+                  </tr>
+                  <tr>
+                    <td colspan="2"><a href="#" data-featherlight="$!{surface_axial}"><img class="tile-img" src="$!{surface_axial}"></img></a></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <table class="image-box">
+                  <tr>
+                    <td align="left">Segmentation</td>
+                  </tr>
+                  <tr>
+                    <td colspan="2"><a href="#" data-featherlight="$!{aseg_axial}"><img class="tile-img" src="$!{aseg_axial}"></img></a></td>
+                  </tr>
+                </table>
+              </td>
+              #if ($vnav_scan != 'n/a')
+              <td>
+                <table class="image-box">
+                  <tr>
+                    <td align="left">vNAV Motion Scores (RMS)</td>
+                  </tr>
+                  <tr>
+                    <td colspan="2"><a href="#" data-featherlight="$!{vnav_rms}"><img class="tile-img" src="$!{vnav_rms}"></img></a></td>
+                  </tr>
+                </table>
+              </td>
+              #end
+            </tr>
+          </table>
+        </div>
+        <!-- end images-tab -->
+        <!-- begin mriqc-report-tab -->
+        <div id="mriqc-report-tab" style="padding: 0px; margin:2px; overflow:hidden">
+          <div style="width: 100%">
+            <iframe src="$!{mriqc_html}" style="width: 100%; height: 810px" frameBorder="0"></iframe>
+          </div>
+        </div>
+        <!-- end mriqc-report-tab -->
+        <!-- begin mriqc-iqms-tab -->
+        <div id="mriqc-iqms-tab" style="padding: 0px; margin:2px">
+          <table class="big-table">
+            <tr>
+              <th align="left">#</th>
+              <th align="left">Metric</th>
+              <th align="left">Value</th>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>cjv</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/cjv"))</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>cnr</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/cnr"))</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>efc</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/efc"))</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>fber</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/fber"))</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>fwhm_avg</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/fwhm_avg"))</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>fwhm_x</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/fwhm_x"))</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>fwhm_y</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/fwhm_y"))</td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td>fwhm_z</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/fwhm_z"))</td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td>icvs_csf</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/icvs_csf"))</td>
+            </tr>
+            <tr>
+              <td>10</td>
+              <td>icvs_gm</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/icvs_gm"))</td>
+            </tr>
+            <tr>
+              <td>11</td>
+              <td>icvs_wm</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/icvs_wm"))</td>
+            </tr>
+            <tr>
+              <td>12</td>
+              <td>inu_med</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/inu_med"))</td>
+            </tr>
+            <tr>
+              <td>13</td>
+              <td>inu_range</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/inu_range"))</td>
+            </tr>
+            <tr>
+              <td>14</td>
+              <td>qi_1</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/qi_1"))</td>
+            </tr>
+            <tr>
+              <td>15</tid>
+              <td>qi_2</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/qi_2"))</td>
+            </tr>
+            <tr>
+              <td>16</td>
+              <td>rpve_csf</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/rpve_csf"))</td>
+            </tr>
+            <tr>
+              <td>17</td>
+              <td>rpve_gm</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/rpve_gm"))</td>
+            </tr>
+            <tr>
+              <td>18</td>
+              <td>rpve_wm</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/rpve_wm"))</td>
+            </tr>
+            <tr>
+              <td>19</td>
+              <td>size_x</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/size_x"))</td>
+            </tr>
+            <tr>
+              <td>20</td>
+              <td>size_y</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/size_y"))</td>
+            </tr>
+            <tr>
+              <td>21</td>
+              <td>size_z</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/size_z"))</td>
+            </tr>
+            <tr>
+              <td>22</td>
+              <td>snr_csf</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/snr_csf"))</td>
+            </tr>
+            <tr>
+              <td>23</td>
+              <td>snr_gm</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/snr_gm"))</td>
+            </tr>
+            <tr>
+              <td>24</td>
+              <td>snr_total</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/snr_total"))</td>
+            </tr>
+            <tr>
+              <td>25</td>
+              <td>snr_wm</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/snr_wm"))</td>
+            </tr>
+            <tr>
+              <td>26</td>
+              <td>snrd_csf</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/snrd_csf"))</td>
+            </tr>
+            <tr>
+              <td>27</td>
+              <td>snrd_gm</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/snrd_gm"))</td>
+            </tr>
+            <tr>
+              <td>28</td>
+              <td>snrd_total</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/snrd_total"))</td>
+            </tr>
+            <tr>
+              <td>29</td>
+              <td>snrd_wm</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/snrd_wm"))</td>
+            </tr>
+            <tr>
+              <td>30</td>
+              <td>spacing_x</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/spacing_x"))</td>
+            </tr>
+            <tr>
+              <td>31</td>
+              <td>spacing_y</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/spacing_y"))</td>
+            </tr>
+            <tr>
+              <td>32</td>
+              <td>spacing_z</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/spacing_z"))</td>
+            </tr>
+            <tr>
+              <td>33</td>
+              <td>summary_bg_k</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_bg_k"))</td>
+            </tr>
+            <tr>
+              <td>34</td>
+              <td>summary_bg_mad</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_bg_mad"))</td>
+            </tr>
+            <tr>
+              <td>35</td>
+              <td>summary_bg_mean</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_bg_mean"))</td>
+            </tr>
+            <tr>
+              <td>36</td>
+              <td>summary_bg_median</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_bg_median"))</td>
+            </tr>
+            <tr>
+              <td>37</td>
+              <td>summary_bg_n</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_bg_n"))</td>
+            </tr>
+            <tr>
+              <td>38</td>
+              <td>summary_bg_p05</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_bg_p05"))</td>
+            </tr>
+            <tr>
+              <td>39</td>
+              <td>summary_bg_p95</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_bg_p95"))</td>
+            </tr>
+            <tr>
+              <td>40</td>
+              <td>summary_bg_stdv</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_bg_stdv"))</td>
+            </tr>
+            <tr>
+              <td>41</td>
+              <td>summary_csf_k</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_csf_k"))</td>
+            </tr>
+            <tr>
+              <td>42</td>
+              <td>summary_csf_mad</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_csf_mad"))</td>
+            </tr>
+            <tr>
+              <td>43</td>
+              <td>summary_csf_mean</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_csf_mean"))</td>
+            </tr>
+            <tr>
+              <td>44</td>
+              <td>summary_csf_median</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_csf_median"))</td>
+            </tr>
+            <tr>
+              <td>45</td>
+              <td>summary_csf_n</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_csf_n"))</td>
+            </tr>
+            <tr>
+              <td>46</td>
+              <td>summary_csf_p05</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_csf_p05"))</td>
+            </tr>
+            <tr>
+              <td>47</td>
+              <td>summary_csf_p95</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_csf_p95"))</td>
+            </tr>
+            <tr>
+              <td>48</td>
+              <td>summary_csf_stdv</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_csf_stdv"))</td>
+            </tr>
+            <tr>
+              <td>49</td>
+              <td>summary_gm_k</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_gm_k"))</td>
+            </tr>
+            <tr>
+              <td>50</td>
+              <td>summary_gm_mad</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_gm_mad"))</td>
+            </tr>
+            <tr>
+              <td>51</td>
+              <td>summary_gm_mean</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_gm_mean"))</td>
+            </tr>
+            <tr>
+              <td>52</td>
+              <td>summary_gm_median</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_gm_median"))</td>
+            </tr>
+            <tr>
+              <td>53</td>
+              <td>summary_gm_n</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_gm_n"))</td>
+            </tr>
+            <tr>
+              <td>54</td>
+              <td>summary_gm_p05</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_gm_p05"))</td>
+            </tr>
+            <tr>
+              <td>55</td>
+              <td>summary_gm_p95</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_gm_p95"))</td>
+            </tr>
+            <tr>
+              <td>56</td>
+              <td>summary_gm_stdv</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_gm_stdv"))</td>
+            </tr>
+            <tr>
+              <td>57</td>
+              <td>summary_wm_k</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_wm_k"))</td>
+            </tr>
+            <tr>
+              <td>58</td>
+              <td>summary_wm_mad</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_wm_mad"))</td>
+            </tr>
+            <tr>
+              <td>59</td>
+              <td>summary_wm_mean</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_wm_mean"))</td>
+            </tr>
+            <tr>
+              <td>60</td>
+              <td>summary_wm_median</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_wm_median"))</td>
+            </tr>
+            <tr>
+              <td>61</td>
+              <td>summary_wm_n</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_wm_n"))</td>
+            </tr>
+            <tr>
+              <td>62</td>
+              <td>summary_wm_p05</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_wm_p05"))</td>
+            </tr>
+            <tr>
+              <td>63</td>
+              <td>summary_wm_p95</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_wm_p95"))</td>
+            </tr>
+            <tr>
+              <td>64</td>
+              <td>summary_wm_stdv</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/summary_wm_stdv"))</td>
+            </tr>
+            <tr>
+              <td>65</td>
+              <td>tpm_overlap_csf</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/tpm_overlap_csf"))</td>
+            </tr>
+            <tr>
+              <td>66</td>
+              <td>tpm_overlap_gm</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/tpm_overlap_gm"))</td>
+            </tr>
+            <tr>
+              <td>67</td>
+              <td>tpm_overlap_wm</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/tpm_overlap_wm"))</td>
+            </tr>
+            <tr>
+              <td>68</td>
+              <td>wm2max</td>
+              <td>#numberFormat($floatFormat3 $!item.getProperty("mriqc/wm2max"))</td>
+            </tr>
+          </table>
+        </div>
+        <!-- end mriqc-iqms-tab -->
+        <!-- begin files tab -->
+        <div id="files-tab" style="padding:0px; margin:2px">
+          <table class="big-table">
+            <tr>
+              <th align="left">#</th>
+              <th align="left">File</th>
+              <th align="left">Description</th>
+              <th align="left">Type</th>
+            </tr>
+            <tr>
+              <td>1</td>
+              #set($name = "${aid}_T1w_axial.png")
+              <td><a download="$!{name}" href="$!{t1w_axial}">$!{name}</a></td>
+              <td>T1w axial image</td>
+              <td>image/png</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              #set($name = "${aid}_aseg_axial.png")
+              <td><a download="$!{name}" href="$!{aseg_axial}">$!{name}</a></td>
+              <td>Segmentation axial image</td>
+              <td>image/png</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              #set($name = "${aid}_brainmask_axial.png")
+              <td><a download="$!{name}" href="$!{brainmask_axial}">$!{name}</a></td>
+              <td>Brainmask axial image</td>
+              <td>image/png</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              #set($name = "${aid}_surface_axial.png")
+              <td><a download="$!{name}" href="$!{surface_axial}">$!{name}</a></td>
+              <td>Surfaces axial image</td>
+              <td>image/png</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              #set($name = "${aid}_aparc_laterality.png")
+              <td><a download="$!{name}" href="$!{aparc_lat}">$!{name}</a></td>
+              <td>Cortical laterality plot</td>
+              <td>image/png</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              #set($name = "${aid}_aseg_laterality.png")
+              <td><a download="$!{name}" href="$!{aseg_lat}">$!{name}</a></td>
+              <td>Subcortical laterality plot</td>
+              <td>image/png</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              #set($name = "${aid}_mriqc.html")
+              <td><a download="$!{name}" href="$!{mriqc_html}">$!{name}</a></td>
+              <td>MRIQC Report</td>
+              <td>text/html</td>
+            </tr>
+            #if ($vnav_scan != 'n/a')
+            <tr>
+              <td>8</td>
+              #set($name = "${aid}_vNav_Motion.json")
+              <td><a download="$!{name}" href="$!{vnav_motion_json}">$!{name}</a></td>
+              <td>vNav Report</td>
+              <td>text/json</td>
+            </tr>
+            <tr>
+              <td>9</td>
+              #set($name = "${aid}_vNavMotionScoresMax.png")
+              <td><a download="$!{name}" href="$!{vnav_max}">$!{name}</a></td>
+              <td>vNav Motion Scores Max</td>
+              <td>text/png</td>
+            </tr>
+            <tr>
+              <td>10</td>
+              #set($name = "${aid}_vNavMotionScoresRMS.png")
+              <td><a download="$!{name}" href="$!{vnav_rms}">$!{name}</a></td>
+              <td>vNav Motion Scores RMS</td>
+              <td>text/png</td>
+            </tr>
+            #end
+          </table>
+        </div>
+        <!-- end files-tab -->
+      </div>
+    </td>
+  </tr>
+</table>

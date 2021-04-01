@@ -1,0 +1,491 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+$page.setTitle("XDAT")
+$page.setLinkColor($ui.alink)
+$page.setVlinkColor($ui.vlink)/*
+ ##---------------------------------------- 
+ ## DO NOT MODIFY THIS FILE HERE
+ ##
+ ## TO MODIFY, COPY THIS FILE to src/main/resources/templates/screens/ and modify it there 
+ ##----------------------------------------
+#set($months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"])
+#set($days = [ 1..31 ])
+#set($years = [ $!turbineUtils.getYear()..1900])
+#if ($data.message)
+<font color="red" size="3">$data.message</font>
+#end
+<p>
+<form ID="form1" name="form1" method="post" action="$link.setAction("ModifyImageAssessorData")">
+<input type="hidden" name="project" value="$!{project}" >
+#if($vr)
+	<font color="red">Invalid parameters:<BR>$vr.toHTML()</font>
+<HR>
+#end
+
+<TABLE width="100%">
+	<TR>
+		<TD>
+			<table width="100%">
+				<TR>
+					<TD align="left" valign="middle">
+						<DIV class="edit_title">AnatQC Details</DIV>
+					</TD>
+				</TR>
+			</TABLE>
+		</TD>
+	</TR>
+	<TR>
+		<TD>
+			<TABLE width="100%">
+				<TR>
+					<TD valign="top">
+						<TABLE>
+							<TR><TD colspan='2'>
+								<hr>
+								#parse("/screens/xnat_edit_experimentData.vm")
+								<HR></TD></TR>
+							<tr>
+								<th align="left">AnatQC ID</th>
+								<TD align="left">#xdatStringBox("neuroinfo:anatqc.ID" $item "" $vr)</TD>
+							</tr>
+							<tr>
+								<TD colspan="2">#parse("/screens/EditProjectSpecificFields.vm")</TD>
+							</tr>
+							<TR><TD>imageSession_ID</TD><TD>#xdatStringBox("neuroinfo:anatqc/imageSession_ID" $item "" $vr)</TD></TR>
+							<TR><TD>date</TD><TD>#xdatDateBox("neuroinfo:anatqc/date" $item $vr $years)</TD></TR>
+							<TR><TD>time</TD><TD>#xdatTextBox("neuroinfo:anatqc/time" $item "" $vr)</TD></TR>
+							<TR><TD>duration</TD><TD>#xdatTextBox("neuroinfo:anatqc/duration" $item "" $vr)</TD></TR>
+							<TR><TD>delay</TD><TD>#xdatTextBox("neuroinfo:anatqc/delay" $item "" $vr)</TD></TR>
+							<TR><TD>delay/ref_expt_id</TD><TD>#xdatStringBox("neuroinfo:anatqc/delay/ref_expt_id" $item "" $vr)</TD></TR>
+							<TR><TD>note</TD><TD>#xdatStringBox("neuroinfo:anatqc/note" $item "" $vr)</TD></TR>
+							<TR><TD>acquisition_site</TD><TD>#xdatStringBox("neuroinfo:anatqc/acquisition_site" $item "" $vr)</TD></TR>
+							<TR><TD>visit_id</TD><TD>#xdatStringBox("neuroinfo:anatqc/visit_id" $item "" $vr)</TD></TR>
+							<TR><TD>visit</TD><TD>#xdatStringBox("neuroinfo:anatqc/visit" $item "" $vr)</TD></TR>
+							<TR><TD>version</TD><TD>#xdatTextBox("neuroinfo:anatqc/version" $item "" $vr)</TD></TR>
+							<TR><TD>original</TD><TD>#xdatStringBox("neuroinfo:anatqc/original" $item "" $vr)</TD></TR>
+							<TR><TD>protocol</TD><TD>#xdatStringBox("neuroinfo:anatqc/protocol" $item "" $vr)</TD></TR>
+							<TR><TD>label</TD><TD>#xdatStringBox("neuroinfo:anatqc/label" $item "" $vr)</TD></TR>
+							<TR><TD>t1w_scan_id</TD><TD>#xdatStringBox("neuroinfo:anatqc/t1w_scan_id" $item "" $vr)</TD></TR>
+							<TR><TD>vnav_scan_id</TD><TD>#xdatStringBox("neuroinfo:anatqc/vnav_scan_id" $item "" $vr)</TD></TR>
+							<TR><TD>session_label</TD><TD>#xdatStringBox("neuroinfo:anatqc/session_label" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/cjv</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/cjv" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/cnr</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/cnr" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/efc</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/efc" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/fber</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/fber" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/fwhm_avg</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/fwhm_avg" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/fwhm_x</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/fwhm_x" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/fwhm_y</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/fwhm_y" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/fwhm_z</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/fwhm_z" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/icvs_csf</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/icvs_csf" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/icvs_gm</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/icvs_gm" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/icvs_wm</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/icvs_wm" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/inu_med</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/inu_med" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/inu_range</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/inu_range" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/qi_1</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/qi_1" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/qi_2</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/qi_2" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/rpve_csf</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/rpve_csf" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/rpve_gm</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/rpve_gm" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/rpve_wm</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/rpve_wm" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/size_x</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/size_x" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/size_y</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/size_y" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/size_z</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/size_z" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/snr_csf</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/snr_csf" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/snr_gm</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/snr_gm" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/snr_total</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/snr_total" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/snr_wm</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/snr_wm" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/snrd_csf</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/snrd_csf" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/snrd_gm</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/snrd_gm" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/snrd_total</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/snrd_total" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/snrd_wm</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/snrd_wm" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/spacing_x</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/spacing_x" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/spacing_y</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/spacing_y" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/spacing_z</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/spacing_z" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_bg_k</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_bg_k" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_bg_mad</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_bg_mad" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_bg_mean</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_bg_mean" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_bg_median</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_bg_median" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_bg_n</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_bg_n" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_bg_p05</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_bg_p05" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_bg_p95</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_bg_p95" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_bg_stdv</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_bg_stdv" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_csf_k</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_csf_k" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_csf_mad</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_csf_mad" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_csf_mean</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_csf_mean" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_csf_median</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_csf_median" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_csf_n</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_csf_n" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_csf_p05</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_csf_p05" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_csf_p95</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_csf_p95" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_csf_stdv</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_csf_stdv" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_gm_k</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_gm_k" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_gm_mad</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_gm_mad" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_gm_mean</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_gm_mean" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_gm_median</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_gm_median" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_gm_n</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_gm_n" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_gm_p05</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_gm_p05" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_gm_p95</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_gm_p95" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_gm_stdv</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_gm_stdv" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_wm_k</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_wm_k" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_wm_mad</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_wm_mad" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_wm_mean</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_wm_mean" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_wm_median</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_wm_median" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_wm_n</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_wm_n" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_wm_p05</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_wm_p05" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_wm_p95</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_wm_p95" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/summary_wm_stdv</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/summary_wm_stdv" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/tpm_overlap_csf</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/tpm_overlap_csf" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/tpm_overlap_gm</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/tpm_overlap_gm" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/tpm_overlap_wm</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/tpm_overlap_wm" $item "" $vr)</TD></TR>
+							<TR><TD>mriqc/wm2max</TD><TD>#xdatTextBox("neuroinfo:anatqc/mriqc/wm2max" $item "" $vr)</TD></TR>
+							<TR><TD>morph/mri_cnr_tot</TD><TD>#xdatTextBox("neuroinfo:anatqc/morph/mri_cnr_tot" $item "" $vr)</TD></TR>
+							<TR><TD>morph/wm_anat_snr</TD><TD>#xdatTextBox("neuroinfo:anatqc/morph/wm_anat_snr" $item "" $vr)</TD></TR>
+							<TR><TD>morph/lh_euler_holes</TD><TD>#xdatTextBox("neuroinfo:anatqc/morph/lh_euler_holes" $item "" $vr)</TD></TR>
+							<TR><TD>morph/lh_cnr</TD><TD>#xdatTextBox("neuroinfo:anatqc/morph/lh_cnr" $item "" $vr)</TD></TR>
+							<TR><TD>morph/lh_gm_wm_cnr</TD><TD>#xdatTextBox("neuroinfo:anatqc/morph/lh_gm_wm_cnr" $item "" $vr)</TD></TR>
+							<TR><TD>morph/lh_gm_csf_cnr</TD><TD>#xdatTextBox("neuroinfo:anatqc/morph/lh_gm_csf_cnr" $item "" $vr)</TD></TR>
+							<TR><TD>morph/rh_euler_holes</TD><TD>#xdatTextBox("neuroinfo:anatqc/morph/rh_euler_holes" $item "" $vr)</TD></TR>
+							<TR><TD>morph/rh_cnr</TD><TD>#xdatTextBox("neuroinfo:anatqc/morph/rh_cnr" $item "" $vr)</TD></TR>
+							<TR><TD>morph/rh_gm_wm_cnr</TD><TD>#xdatTextBox("neuroinfo:anatqc/morph/rh_gm_wm_cnr" $item "" $vr)</TD></TR>
+							<TR><TD>morph/rh_gm_csf_cnr</TD><TD>#xdatTextBox("neuroinfo:anatqc/morph/rh_gm_csf_cnr" $item "" $vr)</TD></TR>
+							<TR><TD>vnav/vnav_min</TD><TD>#xdatTextBox("neuroinfo:anatqc/vnav/vnav_min" $item "" $vr)</TD></TR>
+							<TR><TD>vnav/vnav_max</TD><TD>#xdatTextBox("neuroinfo:anatqc/vnav/vnav_max" $item "" $vr)</TD></TR>
+							<TR><TD>vnav/vnav_acq_tot</TD><TD>#xdatTextBox("neuroinfo:anatqc/vnav/vnav_acq_tot" $item "" $vr)</TD></TR>
+							<TR><TD>vnav/vnav_reacq</TD><TD>#xdatTextBox("neuroinfo:anatqc/vnav/vnav_reacq" $item "" $vr)</TD></TR>
+							<TR><TD>vnav/mean_mot_rms_per_min</TD><TD>#xdatTextBox("neuroinfo:anatqc/vnav/mean_mot_rms_per_min" $item "" $vr)</TD></TR>
+							<TR><TD>vnav/mean_mot_max_per_min</TD><TD>#xdatTextBox("neuroinfo:anatqc/vnav/mean_mot_max_per_min" $item "" $vr)</TD></TR>
+							<TR><TD>vnav/vnav_failed</TD><TD>#xdatTextBox("neuroinfo:anatqc/vnav/vnav_failed" $item "" $vr)</TD></TR>
+						</TABLE>
+					</TD>
+				</TR>
+			</TABLE>
+		</TD>
+	</TR>
+	<TR>
+		<TD>
+<!-- BEGIN neuroinfo:anatqc -->
+			<TABLE>
+				<TR><TH align="left"><font face="$ui.sansSerifFonts" size="2">Related Items</font></TH></TR>
+				<TR>
+					<TD align="left" valign="top">
+						<TABLE><TR><TD>
+							#foreach($xnat_abstractResource_1_COUNTER in [0..5])
+<!-- BEGIN neuroinfo:anatqc/in/file[$xnat_abstractResource_1_COUNTER] -->
+								<TABLE>
+									<TR><TH align="left"><BR><font face="$ui.sansSerifFonts" size="2">neuroinfo:anatqc/in/file[$xnat_abstractResource_1_COUNTER]</font></TH></TR>
+									<TR>
+										<TD align="left" valign="top">
+											<TABLE>
+												<TR><TD>note</TD><TD>#xdatStringBox("neuroinfo:anatqc/in/file[$xnat_abstractResource_1_COUNTER]/note" $item "" $vr)</TD></TR>
+												<TR><TD>label</TD><TD>#xdatStringBox("neuroinfo:anatqc/in/file[$xnat_abstractResource_1_COUNTER]/label" $item "" $vr)</TD></TR>
+												<TR><TD>file_count</TD><TD>#xdatTextBox("neuroinfo:anatqc/in/file[$xnat_abstractResource_1_COUNTER]/file_count" $item "" $vr)</TD></TR>
+												<TR><TD>file_size</TD><TD>#xdatTextBox("neuroinfo:anatqc/in/file[$xnat_abstractResource_1_COUNTER]/file_size" $item "" $vr)</TD></TR>
+																		#xdatHiddenBox("neuroinfo:anatqc/in/file[$xnat_abstractResource_1_COUNTER]/xnat_abstractResource_id" $item "")
+											</TABLE>
+										</TD>
+									</TR>
+<!-- BEGIN neuroinfo:anatqc/in/file[$xnat_abstractResource_1_COUNTER]/tags/tag -->
+									<TR><TH align="left"><BR><font face="$ui.sansSerifFonts" size="2">neuroinfo:anatqc/in/file[$xnat_abstractResource_1_COUNTER]/tags/tag</font></TH></TR>
+									<TR>
+										<TD align="left" valign="top">
+											<TABLE>
+												<TR>
+													<TD>tag</TD>
+													<TD>name</TD>
+												</TR>
+												#foreach($xnat_abstractResource_tag_2_COUNTER in [0..5])
+													<TR>
+														<TD>#xdatTextBox("neuroinfo:anatqc/in/file[$xnat_abstractResource_1_COUNTER]/tags/tag[$xnat_abstractResource_tag_2_COUNTER]/tag" $item "" $vr)</TD>
+														<TD>#xdatTextBox("neuroinfo:anatqc/in/file[$xnat_abstractResource_1_COUNTER]/tags/tag[$xnat_abstractResource_tag_2_COUNTER]/name" $item "" $vr)</TD>
+														#xdatHiddenBox("neuroinfo:anatqc/in/file[$xnat_abstractResource_1_COUNTER]/tags/tag[$xnat_abstractResource_tag_2_COUNTER]/xnat_abstractResource_tag_id" $item "")
+													</TR>
+												#end
+											</TABLE>
+										</TD>
+									</TR>
+<!-- END neuroinfo:anatqc/in/file[$xnat_abstractResource_1_COUNTER]/tags/tag -->
+								</TABLE>
+<!-- END neuroinfo:anatqc/in/file[$xnat_abstractResource_1_COUNTER] -->
+							#end
+						</TD></TR></TABLE>
+					</TD>
+				</TR>
+				<TR>
+					<TD align="left" valign="top">
+						<TABLE><TR><TD>
+							#foreach($xnat_abstractResource_2_COUNTER in [0..5])
+<!-- BEGIN neuroinfo:anatqc/out/file[$xnat_abstractResource_2_COUNTER] -->
+								<TABLE>
+									<TR><TH align="left"><BR><font face="$ui.sansSerifFonts" size="2">neuroinfo:anatqc/out/file[$xnat_abstractResource_2_COUNTER]</font></TH></TR>
+									<TR>
+										<TD align="left" valign="top">
+											<TABLE>
+												<TR><TD>note</TD><TD>#xdatStringBox("neuroinfo:anatqc/out/file[$xnat_abstractResource_2_COUNTER]/note" $item "" $vr)</TD></TR>
+												<TR><TD>label</TD><TD>#xdatStringBox("neuroinfo:anatqc/out/file[$xnat_abstractResource_2_COUNTER]/label" $item "" $vr)</TD></TR>
+												<TR><TD>file_count</TD><TD>#xdatTextBox("neuroinfo:anatqc/out/file[$xnat_abstractResource_2_COUNTER]/file_count" $item "" $vr)</TD></TR>
+												<TR><TD>file_size</TD><TD>#xdatTextBox("neuroinfo:anatqc/out/file[$xnat_abstractResource_2_COUNTER]/file_size" $item "" $vr)</TD></TR>
+																		#xdatHiddenBox("neuroinfo:anatqc/out/file[$xnat_abstractResource_2_COUNTER]/xnat_abstractResource_id" $item "")
+											</TABLE>
+										</TD>
+									</TR>
+<!-- BEGIN neuroinfo:anatqc/out/file[$xnat_abstractResource_2_COUNTER]/tags/tag -->
+									<TR><TH align="left"><BR><font face="$ui.sansSerifFonts" size="2">neuroinfo:anatqc/out/file[$xnat_abstractResource_2_COUNTER]/tags/tag</font></TH></TR>
+									<TR>
+										<TD align="left" valign="top">
+											<TABLE>
+												<TR>
+													<TD>tag</TD>
+													<TD>name</TD>
+												</TR>
+												#foreach($xnat_abstractResource_tag_3_COUNTER in [0..5])
+													<TR>
+														<TD>#xdatTextBox("neuroinfo:anatqc/out/file[$xnat_abstractResource_2_COUNTER]/tags/tag[$xnat_abstractResource_tag_3_COUNTER]/tag" $item "" $vr)</TD>
+														<TD>#xdatTextBox("neuroinfo:anatqc/out/file[$xnat_abstractResource_2_COUNTER]/tags/tag[$xnat_abstractResource_tag_3_COUNTER]/name" $item "" $vr)</TD>
+														#xdatHiddenBox("neuroinfo:anatqc/out/file[$xnat_abstractResource_2_COUNTER]/tags/tag[$xnat_abstractResource_tag_3_COUNTER]/xnat_abstractResource_tag_id" $item "")
+													</TR>
+												#end
+											</TABLE>
+										</TD>
+									</TR>
+<!-- END neuroinfo:anatqc/out/file[$xnat_abstractResource_2_COUNTER]/tags/tag -->
+								</TABLE>
+<!-- END neuroinfo:anatqc/out/file[$xnat_abstractResource_2_COUNTER] -->
+							#end
+						</TD></TR></TABLE>
+					</TD>
+				</TR>
+<!-- BEGIN neuroinfo:anatqc/parameters/addParam -->
+				<TR><TH align="left"><BR><font face="$ui.sansSerifFonts" size="2">neuroinfo:anatqc/parameters/addParam</font></TH></TR>
+				<TR>
+					<TD align="left" valign="top">
+						<TABLE>
+							<TR>
+								<TD>addField</TD>
+								<TD>name</TD>
+							</TR>
+							#foreach($xnat_addField_3_COUNTER in [0..5])
+								<TR>
+									<TD>#xdatTextBox("neuroinfo:anatqc/parameters/addParam[$xnat_addField_3_COUNTER]/addField" $item "" $vr)</TD>
+									<TD>#xdatTextBox("neuroinfo:anatqc/parameters/addParam[$xnat_addField_3_COUNTER]/name" $item "" $vr)</TD>
+									#xdatHiddenBox("neuroinfo:anatqc/parameters/addParam[$xnat_addField_3_COUNTER]/xnat_addField_id" $item "")
+								</TR>
+							#end
+						</TABLE>
+					</TD>
+				</TR>
+<!-- END neuroinfo:anatqc/parameters/addParam -->
+				<TR>
+					<TD align="left" valign="top">
+<!-- BEGIN neuroinfo:anatqc/provenance -->
+						<TABLE>
+							<TR><TH align="left"><BR><font face="$ui.sansSerifFonts" size="2">neuroinfo:anatqc/provenance</font></TH></TR>
+							<TR>
+								<TD align="left" valign="top">
+									<TABLE>
+																#xdatHiddenBox("neuroinfo:anatqc/provenance/prov_process_id" $item "")
+									</TABLE>
+								</TD>
+							</TR>
+							<TR>
+								<TD align="left" valign="top">
+									<TABLE><TR><TD>
+										#foreach($prov_processStep_4_COUNTER in [0..5])
+<!-- BEGIN neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER] -->
+											<TABLE>
+												<TR><TH align="left"><BR><font face="$ui.sansSerifFonts" size="2">neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER]</font></TH></TR>
+												<TR>
+													<TD align="left" valign="top">
+														<TABLE>
+															<TR><TD>program</TD><TD>#xdatStringBox("neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER]/program" $item "" $vr)</TD></TR>
+															<TR><TD>program/version</TD><TD>#xdatStringBox("neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER]/program/version" $item "" $vr)</TD></TR>
+															<TR><TD>program/arguments</TD><TD>#xdatStringBox("neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER]/program/arguments" $item "" $vr)</TD></TR>
+															<TR><TD>timestamp</TD><TD>#xdatTextBox("neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER]/timestamp" $item "" $vr)</TD></TR>
+															<TR><TD>cvs</TD><TD>#xdatStringBox("neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER]/cvs" $item "" $vr)</TD></TR>
+															<TR><TD>user</TD><TD>#xdatStringBox("neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER]/user" $item "" $vr)</TD></TR>
+															<TR><TD>machine</TD><TD>#xdatStringBox("neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER]/machine" $item "" $vr)</TD></TR>
+															<TR><TD>platform</TD><TD>#xdatStringBox("neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER]/platform" $item "" $vr)</TD></TR>
+															<TR><TD>platform/version</TD><TD>#xdatStringBox("neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER]/platform/version" $item "" $vr)</TD></TR>
+															<TR><TD>compiler</TD><TD>#xdatStringBox("neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER]/compiler" $item "" $vr)</TD></TR>
+															<TR><TD>compiler/version</TD><TD>#xdatStringBox("neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER]/compiler/version" $item "" $vr)</TD></TR>
+																					#xdatHiddenBox("neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER]/prov_processStep_id" $item "")
+														</TABLE>
+													</TD>
+												</TR>
+<!-- BEGIN neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER]/library -->
+												<TR><TH align="left"><BR><font face="$ui.sansSerifFonts" size="2">neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER]/library</font></TH></TR>
+												<TR>
+													<TD align="left" valign="top">
+														<TABLE>
+															<TR>
+																<TD>library</TD>
+																<TD>version</TD>
+															</TR>
+															#foreach($prov_processStep_library_5_COUNTER in [0..5])
+																<TR>
+																	<TD>#xdatTextBox("neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER]/library[$prov_processStep_library_5_COUNTER]/library" $item "" $vr)</TD>
+																	<TD>#xdatTextBox("neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER]/library[$prov_processStep_library_5_COUNTER]/version" $item "" $vr)</TD>
+																	#xdatHiddenBox("neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER]/library[$prov_processStep_library_5_COUNTER]/prov_processStep_library_id" $item "")
+																</TR>
+															#end
+														</TABLE>
+													</TD>
+												</TR>
+<!-- END neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER]/library -->
+											</TABLE>
+<!-- END neuroinfo:anatqc/provenance/processStep[$prov_processStep_4_COUNTER] -->
+										#end
+									</TD></TR></TABLE>
+								</TD>
+							</TR>
+						</TABLE>
+<!-- END neuroinfo:anatqc/provenance -->
+					</TD>
+				</TR>
+				<TR>
+					<TD align="left" valign="top">
+<!-- BEGIN neuroinfo:anatqc/investigator -->
+						<TABLE>
+							<TR><TH align="left"><BR><font face="$ui.sansSerifFonts" size="2">neuroinfo:anatqc/investigator</font></TH></TR>
+							<TR>
+								<TD align="left" valign="top">
+									<TABLE>
+										<TR><TD>title</TD><TD>#xdatStringBox("neuroinfo:anatqc/investigator/title" $item "" $vr)</TD></TR>
+										<TR><TD>firstname</TD><TD>#xdatStringBox("neuroinfo:anatqc/investigator/firstname" $item "" $vr)</TD></TR>
+										<TR><TD>lastname</TD><TD>#xdatStringBox("neuroinfo:anatqc/investigator/lastname" $item "" $vr)</TD></TR>
+										<TR><TD>institution</TD><TD>#xdatStringBox("neuroinfo:anatqc/investigator/institution" $item "" $vr)</TD></TR>
+										<TR><TD>department</TD><TD>#xdatStringBox("neuroinfo:anatqc/investigator/department" $item "" $vr)</TD></TR>
+										<TR><TD>email</TD><TD>#xdatStringBox("neuroinfo:anatqc/investigator/email" $item "" $vr)</TD></TR>
+										<TR><TD>phone</TD><TD>#xdatStringBox("neuroinfo:anatqc/investigator/phone" $item "" $vr)</TD></TR>
+										<TR><TD>ID</TD><TD>#xdatStringBox("neuroinfo:anatqc/investigator/ID" $item "" $vr)</TD></TR>
+																#xdatHiddenBox("neuroinfo:anatqc/investigator/xnat_investigatorData_id" $item "")
+									</TABLE>
+								</TD>
+							</TR>
+						</TABLE>
+<!-- END neuroinfo:anatqc/investigator -->
+					</TD>
+				</TR>
+				<TR>
+					<TD align="left" valign="top">
+<!-- BEGIN neuroinfo:anatqc/validation -->
+						<TABLE>
+							<TR><TH align="left"><BR><font face="$ui.sansSerifFonts" size="2">neuroinfo:anatqc/validation</font></TH></TR>
+							<TR>
+								<TD align="left" valign="top">
+									<TABLE>
+										<TR><TD>method</TD><TD>#xdatStringBox("neuroinfo:anatqc/validation/method" $item "" $vr)</TD></TR>
+										<TR><TD>date</TD><TD>#xdatDateBox("neuroinfo:anatqc/validation/date" $item $vr $years)</TD></TR>
+										<TR><TD>notes</TD><TD>#xdatStringBox("neuroinfo:anatqc/validation/notes" $item "" $vr)</TD></TR>
+										<TR><TD>validated_by</TD><TD>#xdatStringBox("neuroinfo:anatqc/validation/validated_by" $item "" $vr)</TD></TR>
+										<TR><TD>status</TD><TD>#xdatStringBox("neuroinfo:anatqc/validation/status" $item "" $vr)</TD></TR>
+																#xdatHiddenBox("neuroinfo:anatqc/validation/xnat_validationData_id" $item "")
+									</TABLE>
+								</TD>
+							</TR>
+						</TABLE>
+<!-- END neuroinfo:anatqc/validation -->
+					</TD>
+				</TR>
+				<TR>
+					<TD align="left" valign="top">
+						<TABLE><TR><TD>
+							#foreach($xnat_abstractResource_7_COUNTER in [0..5])
+<!-- BEGIN neuroinfo:anatqc/resources/resource[$xnat_abstractResource_7_COUNTER] -->
+								<TABLE>
+									<TR><TH align="left"><BR><font face="$ui.sansSerifFonts" size="2">neuroinfo:anatqc/resources/resource[$xnat_abstractResource_7_COUNTER]</font></TH></TR>
+									<TR>
+										<TD align="left" valign="top">
+											<TABLE>
+												<TR><TD>note</TD><TD>#xdatStringBox("neuroinfo:anatqc/resources/resource[$xnat_abstractResource_7_COUNTER]/note" $item "" $vr)</TD></TR>
+												<TR><TD>label</TD><TD>#xdatStringBox("neuroinfo:anatqc/resources/resource[$xnat_abstractResource_7_COUNTER]/label" $item "" $vr)</TD></TR>
+												<TR><TD>file_count</TD><TD>#xdatTextBox("neuroinfo:anatqc/resources/resource[$xnat_abstractResource_7_COUNTER]/file_count" $item "" $vr)</TD></TR>
+												<TR><TD>file_size</TD><TD>#xdatTextBox("neuroinfo:anatqc/resources/resource[$xnat_abstractResource_7_COUNTER]/file_size" $item "" $vr)</TD></TR>
+																		#xdatHiddenBox("neuroinfo:anatqc/resources/resource[$xnat_abstractResource_7_COUNTER]/xnat_abstractResource_id" $item "")
+											</TABLE>
+										</TD>
+									</TR>
+<!-- BEGIN neuroinfo:anatqc/resources/resource[$xnat_abstractResource_7_COUNTER]/tags/tag -->
+									<TR><TH align="left"><BR><font face="$ui.sansSerifFonts" size="2">neuroinfo:anatqc/resources/resource[$xnat_abstractResource_7_COUNTER]/tags/tag</font></TH></TR>
+									<TR>
+										<TD align="left" valign="top">
+											<TABLE>
+												<TR>
+													<TD>tag</TD>
+													<TD>name</TD>
+												</TR>
+												#foreach($xnat_abstractResource_tag_8_COUNTER in [0..5])
+													<TR>
+														<TD>#xdatTextBox("neuroinfo:anatqc/resources/resource[$xnat_abstractResource_7_COUNTER]/tags/tag[$xnat_abstractResource_tag_8_COUNTER]/tag" $item "" $vr)</TD>
+														<TD>#xdatTextBox("neuroinfo:anatqc/resources/resource[$xnat_abstractResource_7_COUNTER]/tags/tag[$xnat_abstractResource_tag_8_COUNTER]/name" $item "" $vr)</TD>
+														#xdatHiddenBox("neuroinfo:anatqc/resources/resource[$xnat_abstractResource_7_COUNTER]/tags/tag[$xnat_abstractResource_tag_8_COUNTER]/xnat_abstractResource_tag_id" $item "")
+													</TR>
+												#end
+											</TABLE>
+										</TD>
+									</TR>
+<!-- END neuroinfo:anatqc/resources/resource[$xnat_abstractResource_7_COUNTER]/tags/tag -->
+								</TABLE>
+<!-- END neuroinfo:anatqc/resources/resource[$xnat_abstractResource_7_COUNTER] -->
+							#end
+						</TD></TR></TABLE>
+					</TD>
+				</TR>
+<!-- BEGIN neuroinfo:anatqc/fields/field -->
+				<TR><TH align="left"><BR><font face="$ui.sansSerifFonts" size="2">neuroinfo:anatqc/fields/field</font></TH></TR>
+				<TR>
+					<TD align="left" valign="top">
+						<TABLE>
+							<TR>
+								<TD>field</TD>
+								<TD>name</TD>
+							</TR>
+							#foreach($xnat_experimentData_field_8_COUNTER in [0..5])
+								<TR>
+									<TD>#xdatTextBox("neuroinfo:anatqc/fields/field[$xnat_experimentData_field_8_COUNTER]/field" $item "" $vr)</TD>
+									<TD>#xdatTextBox("neuroinfo:anatqc/fields/field[$xnat_experimentData_field_8_COUNTER]/name" $item "" $vr)</TD>
+									#xdatHiddenBox("neuroinfo:anatqc/fields/field[$xnat_experimentData_field_8_COUNTER]/xnat_experimentData_field_id" $item "")
+								</TR>
+							#end
+						</TABLE>
+					</TD>
+				</TR>
+<!-- END neuroinfo:anatqc/fields/field -->
+<!-- BEGIN neuroinfo:anatqc/imageResource -->
+				<TR><TH align="left"><BR><font face="$ui.sansSerifFonts" size="2">neuroinfo:anatqc/imageResource</font></TH></TR>
+				<TR>
+					<TD align="left" valign="top">
+						<TABLE>
+							<TR>
+								<TD>label</TD>
+								<TD>uri</TD>
+							</TR>
+							#foreach($neuroinfo_anatqc_imageResource_8_COUNTER in [0..5])
+								<TR>
+									<TD>#xdatTextBox("neuroinfo:anatqc/imageResource[$neuroinfo_anatqc_imageResource_8_COUNTER]/label" $item "" $vr)</TD>
+									<TD>#xdatTextBox("neuroinfo:anatqc/imageResource[$neuroinfo_anatqc_imageResource_8_COUNTER]/uri" $item "" $vr)</TD>
+									#xdatHiddenBox("neuroinfo:anatqc/imageResource[$neuroinfo_anatqc_imageResource_8_COUNTER]/neuroinfo_anatqc_imageResource_id" $item "")
+								</TR>
+							#end
+						</TABLE>
+					</TD>
+				</TR>
+<!-- END neuroinfo:anatqc/imageResource -->
+			</TABLE>
+<!-- END neuroinfo:anatqc -->
+		</TD>
+	</TR>
+	<TR>
+		<TD>
+		#xdatEditProps($item $edit_screen)
+		<TR><TD COLSPAN=2 ALIGN=left><input type="button" ONCLICK="validateForm();"  name="eventSubmit_doInsert" value="Submit"/></TD></TR>
+		</TD>
+	</TR>
+</TABLE>
+</form>
+
+<script type="text/javascript">
+function validateForm()
+{
+   //INSERT CUSTOM CONTENT HERE
+
+   validateExperimentForm();
+   return false;
+}
+</script>
