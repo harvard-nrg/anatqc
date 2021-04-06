@@ -7,7 +7,7 @@
   "image": "anatqc:latest",
   "type": "docker",
   "working-directory": "/sw/apps/anatqc/",
-  "command-line": "tandem #SESSION_LABEL# #RUN# --bids-dir /bids #SUBTASKS# --xnat-upload #FSLICENSE#",
+  "command-line": "-v tandem #SESSION_LABEL# #RUN# --bids-dir /bids #SUBTASKS# --xnat-upload #FSLICENSE#",
   "override-entrypoint": false,
   "mounts": [
     {
