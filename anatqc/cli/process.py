@@ -6,6 +6,7 @@ import yaml
 import yaxil
 import glob
 import math
+import anatqc
 import logging
 import executors
 import tempfile as tf
@@ -42,26 +43,28 @@ def do(args):
         tr = js['RepetitionTime']
 
     # morph job
+    morph_outdir = None
     if 'morph' in args.sub_tasks:
         morph.make_fs_license(args.fs_license)
         infile = os.path.join(*raw) + '.nii.gz'
-        outdir = B.derivatives_dir('anatqc-morph')
-        outdir = os.path.join(outdir, 'anat', raw[1])
+        morph_outdir = B.derivatives_dir('anatqc-morph')
+        morph_outdir = os.path.join(morph_outdir, 'anat', raw[1])
         task = morph.Task(
             infile,
-            outdir
+            morph_outdir
         )
         logger.info(json.dumps(task.command, indent=1))
         jarray.add(task.job)
 
     # vnav job
+    vnav_outdir = None
     if 'vnav' in args.sub_tasks:
         indir = os.path.join(*source) + '.dicom'
-        outdir = B.derivatives_dir('anatqc-vnav')
-        outdir = os.path.join(outdir, 'anat', source[1])
+        vnav_outdir = B.derivatives_dir('anatqc-vnav')
+        vnav_outdir = os.path.join(vnav_outdir, 'anat', source[1])
         task = vnav.Task(
             indir,
-            outdir,
+            vnav_outdir,
             tr
         )
         if task.job:
@@ -69,15 +72,16 @@ def do(args):
             jarray.add(task.job)
 
     # mriqc job
+    mriqc_outdir = None
     if 'mriqc' in args.sub_tasks:
-        outdir = B.derivatives_dir('anatqc-mriqc')
-        outdir = os.path.join(outdir, 'anat', raw[1])
+        mriqc_outdir = B.derivatives_dir('anatqc-mriqc')
+        mriqc_outdir = os.path.join(mriqc_outdir, 'anat', raw[1])
         task = mriqc.Task(
             sub=args.sub,
             ses=args.ses,
             run=args.run,
             bids=args.bids_dir,
-            outdir=outdir,
+            outdir=mriqc_outdir,
             tempdir='/scratch',
             pipenv='/sw/apps/mriqc'
         )
@@ -95,9 +99,20 @@ def do(args):
         complete = len(jarray.complete)
         if failed:
             logger.info('%s/%s jobs failed', failed, numjobs)
+            for pid,job in iter(jarray.failed.items()):
+                logger.error('%s exited with returncode %s', job.name, job.returncode)
+                with open(job.output, 'r') as fp:
+                    logger.error('standard output\n%s', fp.read())
+                with open(job.error, 'r') as fp:
+                    logger.error('standard error\n%s', fp.read())
         logger.info('%s/%s jobs completed', complete, numjobs)
         if failed > 0:
             sys.exit(1)
+
+    # create archive of FreeSurfer results
+    if 'morph' in args.sub_tasks:
+        archive = os.path.join(morph_outdir, 'archive.tar.gz')
+        anatqc.archive(morph_outdir, archive)
 
     # save and upload XAR file
     if args.xnat_upload:
