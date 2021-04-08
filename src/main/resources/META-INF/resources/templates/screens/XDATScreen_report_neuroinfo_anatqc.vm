@@ -20,6 +20,7 @@
 #set($aparc_lat = $content.getURI("/data/experiments/$!{mr_id}/assessors/$!{aid}/out/resources/aparc-laterality/files/$!{aid}_aparc_laterality.png"))
 #set($aseg_lat = $content.getURI("/data/experiments/$!{mr_id}/assessors/$!{aid}/out/resources/aseg-laterality/files/$!{aid}_aseg_laterality.png"))
 #set($mriqc_html = $content.getURI("/data/experiments/$!{mr_id}/assessors/$!{aid}/out/resources/mriqc-html/files/$!{aid}_mriqc.html"))
+#set($fs_data = $content.getURI("/data/experiments/$!{mr_id}/assessors/$!{aid}/out/resources/fs-data/files/$!{aid}_freesurfer.tar.gz"))
 #set($vnav_scan = $!item.getProperty("${dtype}/vnav_scan_id"))
 #set($moco_fail = $!item.getProperty("vnav/vnav_failed"))
 #set($delete_url = $content.getURI("/app/action/XDATActionRouter/xdataction/delete/search_element/$!{dtype}/search_field/$!{dtype}.ID/search_value/$!{aid}"))
@@ -705,23 +706,30 @@
               <td>MRIQC Report</td>
               <td>text/html</td>
             </tr>
-            #if ($vnav_scan != 'n/a')
             <tr>
               <td>8</td>
+              #set($name = "${aid}_freesurfer.tar.gz")
+              <td><a download="$!{name}" href="$!{fs_data}">$!{name}</a></td>
+              <td>FreeSurfer results</td>
+              <td>application/gzip</td>
+            </tr>
+            #if ($vnav_scan != 'n/a')
+            <tr>
+              <td>9</td>
               #set($name = "${aid}_vNav_Motion.json")
               <td><a download="$!{name}" href="$!{vnav_motion_json}">$!{name}</a></td>
               <td>vNav Report</td>
               <td>text/json</td>
             </tr>
             <tr>
-              <td>9</td>
+              <td>10</td>
               #set($name = "${aid}_vNavMotionScoresMax.png")
               <td><a download="$!{name}" href="$!{vnav_max}">$!{name}</a></td>
               <td>vNav Motion Scores Max</td>
               <td>text/png</td>
             </tr>
             <tr>
-              <td>10</td>
+              <td>11</td>
               #set($name = "${aid}_vNavMotionScoresRMS.png")
               <td><a download="$!{name}" href="$!{vnav_rms}">$!{name}</a></td>
               <td>vNav Motion Scores RMS</td>
