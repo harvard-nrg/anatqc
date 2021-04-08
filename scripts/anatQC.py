@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import anatqc
 import logging
 import argparse as ap
 import anatqc.cli as cli
@@ -102,6 +103,7 @@ def main():
     args = parser.parse_args()
 
     configure_logging(args.verbose)
+    logger.info('Welcome to AnatQC version %s', anatqc.version())
 
     # fire parser_*.set_defaults(func=<function>)
     args.func(args)

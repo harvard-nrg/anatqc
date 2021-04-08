@@ -112,7 +112,9 @@ def do(args):
     # create archive of FreeSurfer results
     if 'morph' in args.sub_tasks:
         archive = os.path.join(morph_outdir, 'archive.tar.gz')
-        anatqc.archive(morph_outdir, archive)
+        if not os.path.exists(archive):
+            logger.info('creating anat-morph archive %s', archive)
+            anatqc.archive(morph_outdir, archive)
 
     # save and upload XAR file
     if args.xnat_upload:

@@ -163,6 +163,11 @@ class Report:
                 'filename': os.path.join(self.dirs['mriqc'], basename + '.html'),
                 'URI': '{0}_mriqc.html'.format(aid),
                 'label': 'mriqc-html',
+            },
+            {
+                'filename': os.path.join(self.dirs['morph'], 'archive.tar.gz'),
+                'URI': '{0}_freesurfer.tar.gz'.format(aid),
+                'label': 'fs-data',
             }
         ]
         # not all T1w scans have a vNav
