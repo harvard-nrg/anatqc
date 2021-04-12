@@ -17,33 +17,33 @@ ARG FS_PREFIX=/sw/apps/freesurfer/
 ARG FS_URI="https://www.dropbox.com/s/bzpqywglrhommfw/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.1.tar.gz?dl=0"
 RUN mkdir -p ${FS_PREFIX}
 RUN curl -L -s "${FS_URI}" | tar -C "${FS_PREFIX}" -xzf - \
-	--strip-components=1 \
-	--exclude="freesurfer/diffusion" \
-	--exclude="freesurfer/docs" \
-	--exclude="freesurfer/fsfast" \
-	--exclude="freesurfer/lib/cuda" \
-	--exclude="freesurfer/matlab" \
-	--exclude="freesurfer/mni/share/man" \
-	--exclude="freesurfer/subjects/fsaverage_sym" \
-	--exclude="freesurfer/subjects/fsaverage3" \
-	--exclude="freesurfer/subjects/fsaverage4" \
-	--exclude="freesurfer/subjects/cvs_avg35" \
-	--exclude="freesurfer/subjects/cvs_avg35_inMNI152" \
-	--exclude="freesurfer/subjects/bert" \
-	--exclude="freesurfer/subjects/lh.EC_average" \
-	--exclude="freesurfer/subjects/rh.EC_average" \
-	--exclude="freesurfer/subjects/sample-*.mgz" \
-	--exclude="freesurfer/subjects/V1_average" \
-	--exclude="freesurfer/trctrain"
+  --strip-components=1 \
+  --exclude="freesurfer/diffusion" \
+  --exclude="freesurfer/docs" \
+  --exclude="freesurfer/fsfast" \
+  --exclude="freesurfer/lib/cuda" \
+  --exclude="freesurfer/matlab" \
+  --exclude="freesurfer/mni/share/man" \
+  --exclude="freesurfer/subjects/fsaverage_sym" \
+  --exclude="freesurfer/subjects/fsaverage3" \
+  --exclude="freesurfer/subjects/fsaverage4" \
+  --exclude="freesurfer/subjects/cvs_avg35" \
+  --exclude="freesurfer/subjects/cvs_avg35_inMNI152" \
+  --exclude="freesurfer/subjects/bert" \
+  --exclude="freesurfer/subjects/lh.EC_average" \
+  --exclude="freesurfer/subjects/rh.EC_average" \
+  --exclude="freesurfer/subjects/sample-*.mgz" \
+  --exclude="freesurfer/subjects/V1_average" \
+  --exclude="freesurfer/trctrain"
 RUN dnf install -y tcsh libgomp bc mesa-libGLU libXmu
 RUN dnf install -y epel-release
 RUN dnf install -y \
-	libpng12 perl perl-core ImageMagick glx-utils \
-	mesa-libGL mesa-libGLU-devel mesa-libGL-devel \
-	mesa-dri-drivers libXmu libXmu-devel libX11 \
-	libX11-devel libXt-devel xorg-x11-server-Xorg \
-	xorg-x11-server-Xvfb mesa-libxatracker xorg-x11-drivers \
-	xorg-x11-drv-vmware libXScrnSaver dbus GConf2
+  libpng12 perl perl-core ImageMagick glx-utils \
+  mesa-libGL mesa-libGLU-devel mesa-libGL-devel \
+  mesa-dri-drivers libXmu libXmu-devel libX11 \
+  libX11-devel libXt-devel xorg-x11-server-Xorg \
+  xorg-x11-server-Xvfb mesa-libxatracker xorg-x11-drivers \
+  xorg-x11-drv-vmware libXScrnSaver dbus GConf2
 
 # install mriqc into an isolated pipenv environment
 ARG MRIQC_VERSION="0.15.3"
@@ -55,30 +55,37 @@ RUN mkdir -p "${MRIQC_PREFIX}"
 ENV PIPENV_VENV_IN_PROJECT=1
 WORKDIR "${MRIQC_PREFIX}"
 RUN pipenv install --skip-lock \
-	"dipy" \
-	"jinja2" \
-	"matplotlib==2.2.2" \
-	"nibabel>=3.0.1,<4.0" \
-	"nilearn>=0.2.6,!= 0.5.0,!= 0.5.1" \
-	"nipype~=1.4" \
-	"nitime" \
-	"niworkflows~=1.1" \
-	"numpy==1.15.4" \
-	"pandas==0.23.4" \
-	"pybids>=0.10.2" \
-	"PyYAML" \
-	"scikit-learn==0.19.1" \
-	"scipy==1.1.0" \
-	"seaborn" \
-	"statsmodels" \
-	"svgutils==0.3.1" \
-	"templateflow>=0.5.2" \
-	"toml" \
-        "traits==4.6.0" \
-	"xvfbwrapper"
+  "dipy" \
+  "jinja2" \
+  "matplotlib==2.2.2" \
+  "nibabel>=3.0.1,<4.0" \
+  "nilearn>=0.2.6,!= 0.5.0,!= 0.5.1" \
+  "nipype~=1.4" \
+  "nitime" \
+  "niworkflows~=1.1" \
+  "numpy==1.15.4" \
+  "pandas==0.23.4" \
+  "pybids>=0.10.2" \
+  "PyYAML" \
+  "scikit-learn==0.19.1" \
+  "scipy==1.1.0" \
+  "seaborn" \
+  "statsmodels" \
+  "svgutils==0.3.1" \
+  "templateflow>=0.5.2" \
+  "toml" \
+  "traits==4.6.0" \
+  "xvfbwrapper"
 RUN pipenv install --skip-lock "${MRIQC_URI}"
-# change matplotlib backend to Agg
+# matplotlib post setup: precache fonts and change backend to Agg
 RUN sed -i 's/\(backend *: \).*$/\1Agg/g' "$(pipenv run python -c 'import matplotlib; print(matplotlib.matplotlib_fname())')"
+# templateflow post setup: cache templates
+RUN pipenv run python -c "from templateflow import api as tfapi; \
+  tfapi.get('MNI152NLin2009cAsym', resolution=[1, 2], suffix='T1w', desc=None); \
+  tfapi.get('MNI152NLin2009cAsym', resolution=[1, 2], suffix='mask', desc=['brain', 'head']); \
+  tfapi.get('MNI152NLin2009cAsym', resolution=1, suffix='dseg', desc='carpet'); \
+  tfapi.get('MNI152NLin2009cAsym', resolution=1, suffix='probseg', label=['CSF', 'GM', 'WM']); \
+  tfapi.get('MNI152NLin2009cAsym', resolution=[1, 2], suffix='boldref')"
 
 # install fsl
 ARG FSL_PREFIX="/sw/apps/fsl/"
@@ -86,7 +93,7 @@ ARG FSL_URI="https://www.dropbox.com/s/p8go1t8kcoe41pz/fsl-6.0.4-centos7_64.tar.
 RUN dnf install -y libquadmath
 RUN mkdir -p "${FSL_PREFIX}"
 RUN curl -L -s "${FSL_URI}" | tar -C "${FSL_PREFIX}" -xzf - \
-	--strip-components=1
+  --strip-components=1
 
 # install afni
 ARG AFNI_PREFIX="/sw/apps/afni"
@@ -105,7 +112,7 @@ RUN dnf install -y libGLw libGLU gsl
 RUN ln -s /usr/lib64/libgsl.so.23 /usr/lib64/libgsl.so.0
 RUN mkdir -p "${ANTS_PREFIX}"
 RUN curl -sSL "${ANTS_URI}" \
-	| tar -xzC "${ANTS_PREFIX}" --strip-components 1
+  | tar -xzC "${ANTS_PREFIX}" --strip-components 1
 
 # install dcm2niix
 ARG D2N_PREFIX="/sw/apps/dcm2niix"
@@ -119,16 +126,17 @@ RUN rm "/tmp/dcm2niix_lnx.zip"
 
 # install anatqc
 ARG AQC_PREFIX="/sw/apps/anatqc"
+ARG AQC_VERSION="0.3.7"
 RUN dnf install -y compat-openssl10
 RUN mkdir -p "${AQC_PREFIX}"
 ENV PIPENV_VENV_IN_PROJECT=1
 WORKDIR "${AQC_PREFIX}"
-RUN pipenv install anatqc
+RUN pipenv install anatqc=="${AQC_VERSION}"
 
 # install xnat tools
 ARG XTOOLS_PREFIX="/sw/apps/xnat_tools"
-RUN dnf install -y java-1.8.0-openjdk-devel
 ARG XTOOLS_URI="https://wiki.xnat.org/download/attachments/5017464/xnat_tools.zip"
+RUN dnf install -y java-1.8.0-openjdk-devel
 RUN curl -sL "${XTOOLS_URI}" -o "/tmp/xnat_tools.zip"
 WORKDIR "${XTOOLS_PREFIX}"
 RUN unzip "/tmp/xnat_tools.zip"
