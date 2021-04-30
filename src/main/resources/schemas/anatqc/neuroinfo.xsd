@@ -11,7 +11,7 @@
     <xs:element name="AnatQC" type="neuroinfo:anatqc"/>
     <xs:complexType name="anatqc">
         <xs:complexContent>
-            <xs:extension base="xnat:mrAssessorData">
+            <xs:extension base="xnat:imageAssessorData">
                 <xs:sequence>
                     <xs:element name="t1w_scan_id" type="xs:string"/>
                     <xs:element name="vnav_scan_id" type="xs:string"/>
