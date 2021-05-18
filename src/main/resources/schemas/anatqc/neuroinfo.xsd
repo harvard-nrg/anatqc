@@ -1,13 +1,12 @@
 <!-- AnatQC -->
-<xs:schema targetNamespace="http://nrg.wustl.edu/neuroinfo"
-           xmlns:neuroinfo="http://nrg.wustl.edu/neuroinfo"
+<xs:schema targetNamespace="http://www.neuroinfo.org/neuroinfo"
+           xmlns:neuroinfo="http://www.neuroinfo.org/neuroinfo"
            xmlns:xnat="http://nrg.wustl.edu/xnat"
            xmlns:xdat="http://nrg.wustl.edu/xdat"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            elementFormDefault="qualified" attributeFormDefault="unqualified">
     <xs:import namespace="http://nrg.wustl.edu/xnat" schemaLocation="../xnat/xnat.xsd"/>
     <xs:import namespace="http://nrg.wustl.edu/xdat" schemaLocation="../xdat/xdat.xsd"/>
-
     <xs:element name="AnatQC" type="neuroinfo:anatqc"/>
     <xs:complexType name="anatqc">
         <xs:complexContent>
@@ -119,7 +118,6 @@
                             </xs:sequence>
                         </xs:complexType>
                     </xs:element>
-
                     <xs:element name="imageResource" minOccurs="0" maxOccurs="unbounded">
                         <xs:complexType>
                             <xs:sequence>
@@ -128,7 +126,6 @@
                             </xs:sequence>
                         </xs:complexType>
                     </xs:element>
-
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>
