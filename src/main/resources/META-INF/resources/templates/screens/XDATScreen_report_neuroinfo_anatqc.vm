@@ -163,7 +163,7 @@
             <td style="padding: 3px">MRIQC <span style="font-weight: bold; color: #00e6bf">&mdash;</span></td>
           </tr>
           <tr><td>SNR Tot:</td><td class="mriqc-bar" align="right">#numberFormat($floatFormat3 $!item.getProperty("mriqc/snr_total"))</td></tr>
-          <tr><td>FC:</td><td class="mriqc-bar" align="right">#numberFormat($floatFormat3 $!item.getProperty("mriqc/efc"))</td></tr>
+          <tr><td>EFC:</td><td class="mriqc-bar" align="right">#numberFormat($floatFormat3 $!item.getProperty("mriqc/efc"))</td></tr>
           <tr><td>FWHM Avg:</td><td class="mriqc-bar" align="right">#numberFormat($floatFormat3 $!item.getProperty("mriqc/fwhm_avg"))</td></tr>
           <tr><td>GM SNR:</td><td class="mriqc-bar" align="right">#numberFormat($floatFormat3 $!item.getProperty("mriqc/snr_gm"))</td></tr>
           <tr><td>WM SNR:</td><td class="morph-bar" align="right">#numberFormat($floatFormat3 $!item.getProperty("morph/wm_anat_snr"))</td></tr>
