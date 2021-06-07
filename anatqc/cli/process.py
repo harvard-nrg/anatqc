@@ -8,6 +8,7 @@ import glob
 import math
 import anatqc
 import logging
+import tarfile
 import executors
 import tempfile as tf
 import subprocess as sp
@@ -49,12 +50,20 @@ def do(args):
         infile = os.path.join(*raw) + '.nii.gz'
         morph_outdir = B.derivatives_dir('anatqc-morph')
         morph_outdir = os.path.join(morph_outdir, 'anat', raw[1])
-        task = morph.Task(
-            infile,
-            morph_outdir
-        )
-        logger.info(json.dumps(task.command, indent=1))
-        jarray.add(task.job)
+        if args.mock_fs:
+            dirname = os.path.dirname(morph.__file__)
+            tar = os.path.join(dirname, 'fs-mock.tar.gz')
+            logger.info('extracting mock fs data %s to %s', tar, morph_outdir)
+            os.makedirs(morph_outdir, exist_ok=True)
+            with tarfile.open(tar) as tf:
+                tf.extractall(morph_outdir)
+        else:
+            task = morph.Task(
+                infile,
+                morph_outdir
+            )
+            logger.info(json.dumps(task.command, indent=1))
+            jarray.add(task.job)
 
     # vnav job
     vnav_outdir = None
@@ -116,20 +125,6 @@ def do(args):
             logger.info('creating anat-morph archive %s', archive)
             anatqc.archive(morph_outdir, archive)
 
-    # save and upload XAR file
-    if args.xnat_upload:
-        with tf.NamedTemporaryFile(prefix='anatqc-', suffix='.xar', delete=False) as fo:
-            R = Report(args.bids_dir, args.sub, args.ses, args.run)
-            logger.info('building xnat archive file %s', fo.name)
-            R.build_assessment(fo)
-        logger.info('uploading %s to %s', fo.name, args.xnat_upload)
-        auth = yaxil.auth2(
-            args.xnat_alias,
-            args.xnat_host,
-            args.xnat_user,
-            args.xnat_pass
-        )
-        yaxil.storexar_cli(auth, fo.name)
-        if not args.keep_xar:
-            logger.info('removing %s', fo.name)
-            os.remove(fo.name)
+    R = Report(args.bids_dir, args.sub, args.ses, args.run)
+    logger.info('building xnat artifacts to %s', args.artifacts_dir)
+    R.build_assessment(args.artifacts_dir)

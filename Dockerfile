@@ -126,27 +126,12 @@ RUN rm "/tmp/dcm2niix_lnx.zip"
 
 # install anatqc
 ARG AQC_PREFIX="/sw/apps/anatqc"
-ARG AQC_VERSION="0.3.7"
+ARG AQC_VERSION="0.4.0"
 RUN dnf install -y compat-openssl10
 RUN mkdir -p "${AQC_PREFIX}"
 ENV PIPENV_VENV_IN_PROJECT=1
 WORKDIR "${AQC_PREFIX}"
 RUN pipenv install anatqc=="${AQC_VERSION}"
-
-# install xnat tools
-ARG XTOOLS_PREFIX="/sw/apps/xnat_tools"
-ARG XTOOLS_URI="https://wiki.xnat.org/download/attachments/5017464/xnat_tools.zip"
-RUN dnf install -y java-1.8.0-openjdk-devel
-RUN curl -sL "${XTOOLS_URI}" -o "/tmp/xnat_tools.zip"
-WORKDIR "${XTOOLS_PREFIX}"
-RUN unzip "/tmp/xnat_tools.zip"
-RUN rm "/tmp/xnat_tools.zip"
-RUN mv xnat_tools/* .
-RUN rmdir "xnat_tools"
-RUN chmod 755 StoreXAR
-
-# xnat tools setup
-ENV PATH="${XTOOLS_PREFIX}:${PATH}"
 
 # freesurfer environment
 ENV FREESURFER_HOME="${FS_PREFIX}"

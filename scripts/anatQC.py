@@ -87,6 +87,8 @@ def main():
         help='Run only certain sub tasks')
     parser_tandem.add_argument('--fs-license',
         help='Base64 encoded FreeSurfer license')
+    parser_tandem.add_argument('--mock-fs', action='store_true',
+        help='Extract mocked FreeSurfer data for testing')
     parser_tandem.add_argument('--xnat-alias',
         help='YAXIL authentication alias')
     parser_tandem.add_argument('--xnat-host',
@@ -95,10 +97,8 @@ def main():
         help='XNAT username')
     parser_tandem.add_argument('--xnat-pass',
         help='XNAT password')
-    parser_tandem.add_argument('--xnat-upload', action='store_true',
-        help='Create and upload XNAT XAR')
-    parser_tandem.add_argument('--keep-xar', action='store_true',
-        help='Do not delete XAR file')
+    parser_tandem.add_argument('--artifacts-dir', default='/artifacts',
+        help='Location for generated assessors and resources')
     parser_tandem.set_defaults(func=cli.tandem.do)
     args = parser.parse_args()
 

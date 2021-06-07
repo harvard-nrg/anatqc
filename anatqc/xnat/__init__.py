@@ -6,6 +6,7 @@ import glob
 import yaml
 import json
 import lxml
+import shutil
 import zipfile
 import logging
 from lxml import etree
@@ -86,7 +87,7 @@ class Report:
         '''
         Build XNAT assessment
 
-        :param output: A path to a file (string) or file-like object
+        :param output: Base output directory
         '''
         basename = BIDS.basename(**{
                 'sub': self.sub,
@@ -128,74 +129,56 @@ class Report:
         etree.SubElement(root, xnatns + 'date').text = prov['start_date']
         etree.SubElement(root, xnatns + 'time').text = prov['start_time']
         # compile a list of files to be added to xnat:out section
-        files = [
+        resources = [
             {
-                'filename': os.path.join(self.dirs['morph'], 'morphometrics', 'snapshots', 'img-T1w_axis-axial_mosaic.png'),
-                'URI': '{0}_T1w_axial.png'.format(aid),
-                'label': 't1w-axial',
+                'source': os.path.join(self.dirs['morph'], 'morphometrics', 'snapshots', 'img-T1w_axis-axial_mosaic.png'),
+                'dest': os.path.join('t1w-axial', '{0}_T1w_axial.png'.format(aid))
             },
             {
-                'filename': os.path.join(self.dirs['morph'], 'morphometrics', 'snapshots', 'img-aseg_axis-axial_mosaic.png'),
-                'URI': '{0}_aseg_axial.png'.format(aid),
-                'label': 'aseg-axial',
+                'source': os.path.join(self.dirs['morph'], 'morphometrics', 'snapshots', 'img-aseg_axis-axial_mosaic.png'),
+                'dest': os.path.join('aseg-axial', '{0}_aseg_axial.png'.format(aid))
             },
             {
-                'filename': os.path.join(self.dirs['morph'], 'morphometrics', 'snapshots', 'img-brainmask_axis-axial_mosaic.png'),
-                'URI': '{0}_brainmask_axial.png'.format(aid),
-                'label': 'brainmask-axial',
+                'source': os.path.join(self.dirs['morph'], 'morphometrics', 'snapshots', 'img-brainmask_axis-axial_mosaic.png'),
+                'dest': os.path.join('brainmask-axial', '{0}_brainmask_axial.png'.format(aid))
             },
             {
-                'filename': os.path.join(self.dirs['morph'], 'morphometrics', 'snapshots', 'img-surf_axis-axial_mosaic.png'),
-                'URI': '{0}_surface_axial.png'.format(aid),
-                'label': 'surface-axial',
+                'source': os.path.join(self.dirs['morph'], 'morphometrics', 'snapshots', 'img-surf_axis-axial_mosaic.png'),
+                'dest': os.path.join('surface-axial', '{0}_surface_axial.png'.format(aid))
             },
             {
-                'filename': os.path.join(self.dirs['morph'], 'morphometrics', 'plots', 'aparc-laterality.png'),
-                'URI': '{0}_aparc_laterality.png'.format(aid),
-                'label': 'aparc-laterality',
+                'source': os.path.join(self.dirs['morph'], 'morphometrics', 'plots', 'aparc-laterality.png'),
+                'dest': os.path.join('aparc-laterality', '{0}_aparc_laterality.png'.format(aid))
             },
             {
-                'filename': os.path.join(self.dirs['morph'], 'morphometrics', 'plots', 'aseg-laterality.png'),
-                'URI': '{0}_aseg_laterality.png'.format(aid),
-                'label': 'aseg-laterality',
+                'source': os.path.join(self.dirs['morph'], 'morphometrics', 'plots', 'aseg-laterality.png'),
+                'dest': os.path.join('aseg-laterality', '{0}_aseg_laterality.png'.format(aid))
             },
             {
-                'filename': os.path.join(self.dirs['mriqc'], basename + '.html'),
-                'URI': '{0}_mriqc.html'.format(aid),
-                'label': 'mriqc-html',
+                'source': os.path.join(self.dirs['mriqc'], basename + '.html'),
+                'dest': os.path.join('mriqc-html', '{0}_mriqc.html'.format(aid))
             },
             {
-                'filename': os.path.join(self.dirs['morph'], 'archive.tar.gz'),
-                'URI': '{0}_freesurfer.tar.gz'.format(aid),
-                'label': 'fs-data',
+                'source': os.path.join(self.dirs['morph'], 'archive.tar.gz'),
+                'dest': os.path.join('fs-data', '{0}_freesurfer.tar.gz'.format(aid))
             }
         ]
         # not all T1w scans have a vNav
         if self.dirs['vnav']:
-            files.extend([
+            resources.extend([
                 {
-                    'filename': os.path.join(self.dirs['vnav'], 'vNav_Motion.json'),
-                    'URI': '{0}_vNav_Motion.json'.format(aid),
-                    'label': 'vnav-motion-json',
+                    'source': os.path.join(self.dirs['vnav'], 'vNav_Motion.json'),
+                    'dest': os.path.join('vnav-motion-json', '{0}_vNav_Motion.json'.format(aid))
                 },
                 {
-                    'filename': os.path.join(self.dirs['vnav'], 'vNavMotionScoresMax.png'),
-                    'URI': '{0}_vNavMotionScoresMax.png'.format(aid),
-                    'label': 'vnav-max',
+                    'source': os.path.join(self.dirs['vnav'], 'vNavMotionScoresMax.png'),
+                    'dest': os.path.join('vnav-max', '{0}_vNavMotionScoresMax.png'.format(aid))
                 },
                 {
-                    'filename': os.path.join(self.dirs['vnav'], 'vNavMotionScoresRMS.png'),
-                    'URI': '{0}_vNavMotionScoresRMS.png'.format(aid),
-                    'label': 'vnav-rms',
+                    'source': os.path.join(self.dirs['vnav'], 'vNavMotionScoresRMS.png'),
+                    'dest': os.path.join('vnav-rms', '{0}_vNavMotionScoresRMS.png'.format(aid))
                 }
             ])
-        # add xnat:out
-        xnat_out = etree.SubElement(root, xnatns + 'out')
-        for f in files:
-            e = etree.SubElement(xnat_out, xnatns + 'file')
-            e.attrib['label'] = f['label']
-            e.attrib['URI'] = f['URI']
-            e.attrib['{http://www.w3.org/2001/XMLSchema-instance}type'] = 'xnat:resource'
         # start building XML
         xnatns = '{%s}' % ns['xnat']
         etree.SubElement(root, xnatns + 'imageSession_ID').text = T1w_ds['experiment_id']
@@ -205,9 +188,22 @@ class Report:
         else:
             etree.SubElement(root, 'vnav_scan_id').text = 'n/a'
         etree.SubElement(root, 'session_label').text = T1w_ds['experiment']
-        # add freesurfer element
+        # add <mriqc> element
+        mriqc_elm = etree.SubElement(root, 'mriqc')
+        fname = os.path.join(
+            self.dirs['mriqc'],
+            self.sub,
+            self.ses,
+            'anat',
+            basename + '.json'
+        )
+        with open(fname) as fo:
+            mriqc = json.load(fo)
+        for metric in MRIQC_METRICS:
+            etree.SubElement(mriqc_elm, metric).text = str(mriqc[metric])
+        # add <morph> element
         morph_elm = etree.SubElement(root, 'morph')
-        # add mri_cnr data
+        # -- add mri_cnr data
         fname = os.path.join(self.dirs['morph'], 'morphometrics', 'stats', 'mri_cnr.json')
         with open(fname) as fo:
             mri_cnr = json.load(fo)
@@ -233,20 +229,7 @@ class Report:
         etree.SubElement(morph_elm, 'rh_cnr').text = str(mri_cnr['rh_cnr'])
         etree.SubElement(morph_elm, 'rh_gm_wm_cnr').text = str(mri_cnr['rh_gm_wm_cnr'])
         etree.SubElement(morph_elm, 'rh_gm_csf_cnr').text = str(mri_cnr['rh_gm_csf_cnr'])
-        # add mriqc element
-        mriqc_elm = etree.SubElement(root, 'mriqc')
-        fname = os.path.join(
-            self.dirs['mriqc'],
-            self.sub,
-            self.ses,
-            'anat',
-            basename + '.json'
-        )
-        with open(fname) as fo:
-            mriqc = json.load(fo)
-        for metric in MRIQC_METRICS:
-            etree.SubElement(mriqc_elm, metric).text = str(mriqc[metric])
-        # add vnav element
+        # add <vnav> element
         if self.dirs['vnav']:
             vnav_elm = etree.SubElement(root, 'vnav')
             # count the number of vNav transforms
@@ -270,16 +253,23 @@ class Report:
             etree.SubElement(vnav_elm, 'mean_mot_rms_per_min').text = str(rms_per_min)
             etree.SubElement(vnav_elm, 'mean_mot_max_per_min').text = str(max_per_min)
             etree.SubElement(vnav_elm, 'vnav_failed').text = str(moco_fail)
-        # build the archive
-        if isinstance(output, str):
-            output = open(output, 'w')
-        with zipfile.ZipFile(output, 'w') as zf:
-            for f in files:
-                filename = f['filename']
-                arcname = os.path.join('ASSESSMENT_FOLDER', f['URI'])
-                logger.info('adding %s to %s', filename, arcname)
-                zf.write(filename, arcname)
-            zf.writestr('ASSESSMENT.XML', etree.tostring(root, pretty_print=True))
+
+        # write assessor to output mount location.
+        xmlstr = etree.tostring(root, pretty_print=True, xml_declaration=True, encoding='UTF-8')
+        assessor_dir = os.path.join(output, 'assessor')
+        os.makedirs(assessor_dir, exist_ok=True)
+        assessment_xml = os.path.join(assessor_dir, 'assessment.xml')
+        with open(assessment_xml, 'wb') as fo:
+            fo.write(xmlstr)
+
+        # copy resources to output mount location
+        resources_dir = os.path.join(output, 'resources')
+        os.makedirs(resources_dir, exist_ok=True)
+        for resource in resources:
+            src = resource['source']
+            dest = os.path.join(resources_dir, resource['dest'])
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            shutil.copyfile(src, dest)
 
     def datasource(self, task):
         basename = os.path.basename(self.dirs[task])

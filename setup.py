@@ -26,6 +26,10 @@ setup(
     author_email=about['__author_email__'],
     url=about['__url__'],
     packages=find_packages(),
+    package_data={
+        '': ['*.tar.gz']
+    },
+    include_package_data=True,
     scripts=[
         'scripts/anatQC.py'
     ],
