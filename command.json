@@ -1,13 +1,13 @@
 {
   "name": "anatqc-session",
   "label": "anatqc-session",
-  "description": "Runs anatQC on MR Session's scans with MOVE and ANAT notes",
+  "description": "Run AnatQC on a MR Session",
   "version": "1.0.0",
   "schema-version": "1.0",
-  "image": "anatqc:latest",
+  "image": "anatqc:0.1",
   "type": "docker",
   "working-directory": "/sw/apps/anatqc/",
-  "command-line": "-v tandem #SESSION_LABEL# #RUN# --bids-dir /bids #SUBTASKS# --xnat-upload #FSLICENSE#",
+  "command-line": "-v tandem #SESSION_LABEL# #RUN# --bids-dir /bids #SUBTASKS# #FSLICENSE# --artifacts-dir /artifacts",
   "override-entrypoint": false,
   "mounts": [
     {
@@ -16,9 +16,9 @@
       "path": "/session"
     },
     {
-      "name": "nifti",
+      "name": "artifacts",
       "writable": true,
-      "path": "/nifti"
+      "path": "/artifacts"
     }
   ],
   "environment-variables": {},
@@ -26,6 +26,7 @@
   "inputs": [
     {
       "name": "run",
+      "label": null,
       "description": "Run number",
       "type": "string",
       "matcher": null,
@@ -36,10 +37,13 @@
       "command-line-flag": "--run",
       "command-line-separator": null,
       "true-value": null,
-      "false-value": null
+      "false-value": null,
+      "select-values": [],
+      "multiple-delimiter": null
     },
     {
       "name": "session_label",
+      "label": null,
       "description": "Label of the session",
       "type": "string",
       "matcher": null,
@@ -50,10 +54,13 @@
       "command-line-flag": "--label",
       "command-line-separator": null,
       "true-value": null,
-      "false-value": null
+      "false-value": null,
+      "select-values": [],
+      "multiple-delimiter": null
     },
     {
       "name": "subtasks",
+      "label": null,
       "description": "Limit run to specified tasks 'morph mriqc vnav'",
       "type": "string",
       "matcher": null,
@@ -64,10 +71,13 @@
       "command-line-flag": "--sub-tasks",
       "command-line-separator": null,
       "true-value": null,
-      "false-value": null
+      "false-value": null,
+      "select-values": [],
+      "multiple-delimiter": null
     },
     {
       "name": "fslicense",
+      "label": null,
       "description": "FreeSurfer license base64 encoded",
       "type": "string",
       "matcher": null,
@@ -78,21 +88,41 @@
       "command-line-flag": "--fs-license",
       "command-line-separator": null,
       "true-value": null,
-      "false-value": null
+      "false-value": null,
+      "select-values": [],
+      "multiple-delimiter": null
     }
   ],
-  "outputs": [],
+  "outputs": [
+    {
+      "name": "assessor",
+      "description": "assessor",
+      "required": true,
+      "mount": "artifacts",
+      "path": "assessor/assessment.xml",
+      "glob": ""
+    },
+    {
+      "name": "resources",
+      "description": "resources",
+      "required": true,
+      "mount": "artifacts",
+      "path": "resources",
+      "glob": ""
+    }
+  ],
   "xnat": [
     {
       "name": "anatqc-session",
       "label": "anatqc-session",
-      "description": "Run anatQC on a Session",
+      "description": "Run AnatQC on a MR Session",
       "contexts": [
         "xnat:imageSessionData"
       ],
       "external-inputs": [
         {
           "name": "session",
+          "label": null,
           "description": "Input session",
           "type": "Session",
           "matcher": null,
@@ -110,6 +140,7 @@
       "derived-inputs": [
         {
           "name": "session-label",
+          "label": null,
           "description": "The session's label",
           "type": "string",
           "matcher": null,
@@ -123,10 +154,41 @@
           "load-children": true,
           "derived-from-wrapper-input": "session",
           "derived-from-xnat-object-property": "label",
-          "via-setup-command": null
+          "via-setup-command": null,
+          "multiple": false,
+          "parser": null
         }
       ],
-      "output-handlers": []
+      "output-handlers": [
+        {
+          "name": "assessor",
+          "accepts-command-output": "assessor",
+          "via-wrapup-command": null,
+          "as-a-child-of": "session",
+          "type": "Assessor",
+          "label": "anatqc-assessor",
+          "format": null,
+          "description": null,
+          "content": null,
+          "tags": []
+        },
+        {
+          "name": "resources",
+          "accepts-command-output": "resources",
+          "via-wrapup-command": null,
+          "as-a-child-of": "assessor",
+          "type": "Resource",
+          "label": "anatqc-resource",
+          "format": null,
+          "description": null,
+          "content": null,
+          "tags": []
+        }
+      ]
     }
-  ]
+  ],
+  "container-labels": {},
+  "generic-resources": {},
+  "ulimits": {}
 }
+
