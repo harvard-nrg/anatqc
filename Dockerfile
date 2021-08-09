@@ -59,7 +59,7 @@ RUN pipenv install --skip-lock \
   "jinja2" \
   "matplotlib==2.2.2" \
   "nibabel>=3.0.1,<4.0" \
-  "nilearn>=0.2.6,!= 0.5.0,!= 0.5.1" \
+  "nilearn==0.7.1" \
   "nipype~=1.4" \
   "nitime" \
   "niworkflows~=1.1" \
