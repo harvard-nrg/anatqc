@@ -4,7 +4,7 @@
   "description": "Run AnatQC on a MR Session",
   "version": "1.0.0",
   "schema-version": "1.0",
-  "image": "anatqc:0.4.0",
+  "image": "neuroinformatics/anatqc:0.4.0",
   "type": "docker",
   "working-directory": "/sw/apps/anatqc/",
   "command-line": "-v tandem #SESSION_LABEL# #RUN# --bids-dir /bids #SUBTASKS# #FSLICENSE# --artifacts-dir /artifacts",
