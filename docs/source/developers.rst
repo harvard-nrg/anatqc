@@ -10,6 +10,16 @@ Installation
 ------------
 At the moment, the only supported way to install AnatQC is `within a container <#building-a-container>`_.
 
+downloading a container
+^^^^^^^^^^^^^^^^^^^^^^^
+There are prebuilt versions of AnatQC on `Docker Hub <https://hub.docker.com/repository/docker/neuroinformatics/anatqc>`_. You can pull the latest version by running ::
+
+    docker pull neuroinformatics/anatqc
+
+or you can pull a specific version e.g., ``0.4.0`` by running ::
+
+    docker pull neuroinformatics/anatqc:0.4.0
+    
 building a container
 ^^^^^^^^^^^^^^^^^^^^
 To build AnatQC as a container, grab the latest `Dockerfile <https://github.com/harvard-nrg/anatqc/blob/main/Dockerfile>`_ from the repository and run ::

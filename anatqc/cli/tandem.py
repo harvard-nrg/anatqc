@@ -40,6 +40,7 @@ def do(args):
                 run = re_anat.group(1)
                 if int(run) == int(args.run):
                     scans[run]['anat'] = scan['id']
+    subject_label = scan['subject_label']
 
     logger.info(json.dumps(scans, indent=2))
 
@@ -51,9 +52,10 @@ def do(args):
             logger.info('getting move run=%s, scan=%s', run, scansr['move'])
             anatqc.cli.get.get_move(args, auth, run, scansr['move'], verbose=args.verbose)
         args.run = int(run)
-        bids_label = yaxil.bids.legal.sub('', args.label)
-        args.sub = 'sub-' + bids_label.replace('MR1', '')
-        args.ses = 'ses-' + bids_label
+        bids_ses_label = yaxil.bids.legal.sub('', args.label)
+        bids_sub_label = yaxil.bids.legal.sub('', subject_label)
+        args.sub = 'sub-' + bids_sub_label
+        args.ses = 'ses-' + bids_ses_label
         logger.debug('sub=%s, ses=%s', args.sub, args.ses)
         anatqc.cli.process.do(args)
 
