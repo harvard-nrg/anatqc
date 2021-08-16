@@ -126,7 +126,7 @@ RUN rm "/tmp/dcm2niix_lnx.zip"
 
 # install anatqc
 ARG AQC_PREFIX="/sw/apps/anatqc"
-ARG AQC_VERSION="0.4.1"
+ARG AQC_VERSION="0.4.2"
 RUN dnf install -y compat-openssl10
 RUN mkdir -p "${AQC_PREFIX}"
 ENV PIPENV_VENV_IN_PROJECT=1

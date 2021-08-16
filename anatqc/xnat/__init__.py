@@ -9,6 +9,7 @@ import lxml
 import shutil
 import zipfile
 import logging
+import numpy as np
 from lxml import etree
 from anatqc.bids import BIDS
 
@@ -197,38 +198,42 @@ class Report:
             'anat',
             basename + '.json'
         )
+        floatfmt = '{:.5f}'.format
         with open(fname) as fo:
             mriqc = json.load(fo)
         for metric in MRIQC_METRICS:
-            etree.SubElement(mriqc_elm, metric).text = str(mriqc[metric])
+            value = mriqc[metric]
+            if isinstance(value, np.float):
+                value = floatfmt(value)
+            etree.SubElement(mriqc_elm, metric).text = str(value)
         # add <morph> element
         morph_elm = etree.SubElement(root, 'morph')
         # -- add mri_cnr data
         fname = os.path.join(self.dirs['morph'], 'morphometrics', 'stats', 'mri_cnr.json')
         with open(fname) as fo:
             mri_cnr = json.load(fo)
-        etree.SubElement(morph_elm, 'mri_cnr_tot').text = str(mri_cnr['tot_cnr'])
+        etree.SubElement(morph_elm, 'mri_cnr_tot').text = floatfmt(mri_cnr['tot_cnr'])
         # add wm_anat_snr data
         fname = os.path.join(self.dirs['morph'], 'morphometrics', 'stats', 'wm_anat_snr.json')
         with open(fname) as fo:
             wm_anat_snr = json.load(fo)
-        etree.SubElement(morph_elm, 'wm_anat_snr').text = str(wm_anat_snr['snr'])
+        etree.SubElement(morph_elm, 'wm_anat_snr').text = floatfmt(wm_anat_snr['snr'])
         # add lh euler holes, cnr, gray/white, gray/csf
         fname = os.path.join(self.dirs['morph'], 'morphometrics', 'stats', 'lh.mris_euler_number.json')
         with open(fname) as fo:
             lh_euler = json.load(fo)
         etree.SubElement(morph_elm, 'lh_euler_holes').text = str(lh_euler['holes'])
-        etree.SubElement(morph_elm, 'lh_cnr').text = str(mri_cnr['lh_cnr'])
-        etree.SubElement(morph_elm, 'lh_gm_wm_cnr').text = str(mri_cnr['lh_gm_wm_cnr'])
-        etree.SubElement(morph_elm, 'lh_gm_csf_cnr').text = str(mri_cnr['lh_gm_csf_cnr'])
+        etree.SubElement(morph_elm, 'lh_cnr').text = floatfmt(mri_cnr['lh_cnr'])
+        etree.SubElement(morph_elm, 'lh_gm_wm_cnr').text = floatfmt(mri_cnr['lh_gm_wm_cnr'])
+        etree.SubElement(morph_elm, 'lh_gm_csf_cnr').text = floatfmt(mri_cnr['lh_gm_csf_cnr'])
         # add rh euler holes, cnr, gray/white, gray/csf
         fname = os.path.join(self.dirs['morph'], 'morphometrics', 'stats', 'rh.mris_euler_number.json')
         with open(fname) as fo:
             rh_euler = json.load(fo)
         etree.SubElement(morph_elm, 'rh_euler_holes').text = str(rh_euler['holes'])
-        etree.SubElement(morph_elm, 'rh_cnr').text = str(mri_cnr['rh_cnr'])
-        etree.SubElement(morph_elm, 'rh_gm_wm_cnr').text = str(mri_cnr['rh_gm_wm_cnr'])
-        etree.SubElement(morph_elm, 'rh_gm_csf_cnr').text = str(mri_cnr['rh_gm_csf_cnr'])
+        etree.SubElement(morph_elm, 'rh_cnr').text = floatfmt(mri_cnr['rh_cnr'])
+        etree.SubElement(morph_elm, 'rh_gm_wm_cnr').text = floatfmt(mri_cnr['rh_gm_wm_cnr'])
+        etree.SubElement(morph_elm, 'rh_gm_csf_cnr').text = floatfmt(mri_cnr['rh_gm_csf_cnr'])
         # add <vnav> element
         if self.dirs['vnav']:
             vnav_elm = etree.SubElement(root, 'vnav')
@@ -250,8 +255,8 @@ class Report:
             etree.SubElement(vnav_elm, 'vnav_max').text = str(vnav_max)
             etree.SubElement(vnav_elm, 'vnav_acq_tot').text = str(n_vnav_acq)
             etree.SubElement(vnav_elm, 'vnav_reacq').text = str(n_vnav_acq - vnav_min)
-            etree.SubElement(vnav_elm, 'mean_mot_rms_per_min').text = str(rms_per_min)
-            etree.SubElement(vnav_elm, 'mean_mot_max_per_min').text = str(max_per_min)
+            etree.SubElement(vnav_elm, 'mean_mot_rms_per_min').text = floatfmt(rms_per_min)
+            etree.SubElement(vnav_elm, 'mean_mot_max_per_min').text = floatfmt(max_per_min)
             etree.SubElement(vnav_elm, 'vnav_failed').text = str(moco_fail)
 
         # write assessor to output mount location.
