@@ -11,9 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-//import java.text.SimpleDateFormat;
-//import java.util.Date;
-
 public class XDATScreen_report_neuroinfo_anatqc extends SecureReport {
     @Override
     public void finalProcessing(RunData data, Context context) {
@@ -25,14 +22,5 @@ public class XDATScreen_report_neuroinfo_anatqc extends SecureReport {
                 .map( f -> (XnatResource) f)
                 .collect( Collectors.toMap( XnatResource::getLabel, XnatResource::getUri));
         context.put( "fileMap", map);
-//        map.forEach( context::put);
     }
-
-//    @Override
-//    public void doBuildTemplate(final RunData data, final Context context) {
-//        context.put("dateTime", DATE_FORMAT.format(new Date()));
-//    }
-//
-//    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd_hhmmss");
-
 }

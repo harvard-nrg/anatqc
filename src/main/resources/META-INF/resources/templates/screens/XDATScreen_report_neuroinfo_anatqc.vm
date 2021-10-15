@@ -2,7 +2,7 @@
 #set($mr_label = $!item.getStringProperty("${dtype}/session_label"))
 #set($mr_id = $!item.getStringProperty("${dtype}/imageSession_ID"))
 #set($aid = $!item.getStringProperty("${dtype}.ID"))
-
+#set($project = $!item.getStringProperty("${dtype}/project"))
 #set ($floatFormat3 = '0.###')
 #macro (numberFormat $format $number)
     #set ($d = $item.getClass().forName('java.text.DecimalFormat').newInstance())
@@ -25,10 +25,262 @@
 #set($moco_fail = $!item.getProperty("vnav/vnav_failed"))
 #set($delete_url = $content.getURI("/app/action/XDATActionRouter/xdataction/delete/search_element/$!{dtype}/search_field/$!{dtype}.ID/search_value/$!{aid}"))
 
-<script>
+#set($manual_wrap = $!item.getProperty("manual/wrap"))
+#set($manual_cover= $!item.getProperty("manual/cover"))
+#set($manual_motion_brain = $!item.getProperty("manual/motion_brain"))
+#set($manual_motion_out = $!item.getProperty("manual/motion_out"))
+#set($manual_ghost_brain = $!item.getProperty("manual/ghost_brain"))
+#set($manual_ghost_out = $!item.getProperty("manual/ghost_out"))
+#set($manual_spike = $!item.getProperty("manual/spike"))
+#set($manual_art_brain = $!item.getProperty("manual/art_brain"))
+#set($manual_art_out = $!item.getProperty("manual/art_out"))
+#set($manual_inhom = $!item.getProperty("manual/inhom"))
+#set($manual_overall = $!item.getProperty("manual/overall"))
+#set($manual_comments = $!item.getProperty("manual/comments"))
+
+<script type="text/javascript">
   $( function() {
+    /**
+     * Turn HTML elements into jQuery UI elements
+     */
     $( "#tabs" ).tabs();
     $( "#menu" ).menu();
+
+    /**
+     * Populate Manual QC tab with previously saved data
+     */
+    switch("$!{manual_wrap}") {
+      case "None": 
+        $( "#wrap-none" ).attr("checked", "checked");
+        break;
+      case "Mild":
+        $( "#wrap-mild" ).attr("checked", "checked");
+        break;
+      case "Moderate":
+        $( "#wrap-moderate" ).attr("checked", "checked");
+        break;
+      case "Severe":
+        $( "#wrap-severe" ).attr("checked", "checked");
+        break;
+      default:
+        break;
+    }
+
+    switch("$!{manual_cover}") {
+      case "Good": 
+        $( "#cover-good" ).attr("checked", "checked");
+        break;
+      case "Mild":
+        $( "#cover-mild" ).attr("checked", "checked");
+        break;
+      case "Moderate":
+        $( "#cover-moderate" ).attr("checked", "checked");
+        break;
+      case "Severe":
+        $( "#cover-severe" ).attr("checked", "checked");
+        break;
+      default:
+        break;
+    }
+
+    switch("$!{manual_motion_brain}") {
+      case "None": 
+        $( "#motion_brain-none" ).attr("checked", "checked");
+        break;
+      case "Mild":
+        $( "#motion_brain-mild" ).attr("checked", "checked");
+        break;
+      case "Moderate":
+        $( "#motion_brain-moderate" ).attr("checked", "checked");
+        break;
+      case "Severe":
+        $( "#motion_brain-severe" ).attr("checked", "checked");
+        break;
+      default:
+        break;
+    }
+
+    switch("$!{manual_motion_out}") {
+      case "None":
+        $( "#motion_out-none" ).attr("checked", "checked");
+        break;
+      case "Mild":
+        $( "#motion_out-mild" ).attr("checked", "checked");
+        break;
+      case "Moderate":
+        $( "#motion_out-moderate" ).attr("checked", "checked");
+        break;
+      case "Severe":
+        $( "#motion_out-severe" ).attr("checked", "checked");
+        break;
+      default:
+        break;
+    }
+
+    switch("$!{manual_ghost_brain}") {
+      case "None": 
+        $( "#ghost_brain-none" ).attr("checked", "checked");
+        break;
+      case "Mild":
+        $( "#ghost_brain-mild" ).attr("checked", "checked");
+        break;
+      case "Moderate":
+        $( "#ghost_brain-moderate" ).attr("checked", "checked");
+        break;
+      case "Severe":
+        $( "#ghost_brain-severe" ).attr("checked", "checked");
+        break;
+      default:
+        break;
+    }
+
+    switch("$!{manual_ghost_out}") {
+      case "None": 
+        $( "#ghost_out-none" ).attr("checked", "checked");
+        break;
+      case "Mild":
+        $( "#ghost_out-mild" ).attr("checked", "checked");
+        break;
+      case "Moderate":
+        $( "#ghost_out-moderate" ).attr("checked", "checked");
+        break;
+      case "Severe":
+        $( "#ghost_out-severe" ).attr("checked", "checked");
+        break;
+      default:
+        break;
+    }
+
+    switch("$!{manual_spike}") {
+      case "None": 
+        $( "#spike-none" ).attr("checked", "checked");
+        break;
+      case "Mild":
+        $( "#spike-mild" ).attr("checked", "checked");
+        break;
+      case "Moderate":
+        $( "#spike-moderate" ).attr("checked", "checked");
+        break;
+      case "Severe":
+        $( "#spike-severe" ).attr("checked", "checked");
+        break;
+      default:
+        break;
+    }
+
+    switch("$!{manual_art_brain}") {
+      case "None": 
+        $( "#art_brain-none" ).attr("checked", "checked");
+        break;
+      case "Mild":
+        $( "#art_brain-mild" ).attr("checked", "checked");
+        break;
+      case "Moderate":
+        $( "#art_brain-moderate" ).attr("checked", "checked");
+        break;
+      case "Severe":
+        $( "#art_brain-severe" ).attr("checked", "checked");
+        break;
+      default:
+        break;
+    }
+
+    switch("$!{manual_art_out}") {
+      case "None": 
+        $( "#art_out-none" ).attr("checked", "checked");
+        break;
+      case "Mild":
+        $( "#art_out-mild" ).attr("checked", "checked");
+        break;
+      case "Moderate":
+        $( "#art_out-moderate" ).attr("checked", "checked");
+        break;
+      case "Severe":
+        $( "#art_out-severe" ).attr("checked", "checked");
+        break;
+      default:
+        break;
+    }
+
+    switch("$!{manual_inhom}") {
+      case "None": 
+        $( "#inhom-none" ).attr("checked", "checked");
+        break;
+      case "Expected":
+        $( "#inhom-expected" ).attr("checked", "checked");
+        break;
+      case "Moderate":
+        $( "#inhom-moderate" ).attr("checked", "checked");
+        break;
+      case "Severe":
+        $( "#inhom-severe" ).attr("checked", "checked");
+        break;
+      default:
+        break;
+    }
+
+    switch("$!{manual_overall}") {
+      case "PASS": 
+        $( "#overall-pass" ).attr("checked", "checked");
+        break;
+      case "WARN":
+        $( "#overall-warn" ).attr("checked", "checked");
+        break;
+      case "FAIL":
+        $( "#overall-fail" ).attr("checked", "checked");
+        break;
+      default:
+        break;
+    }
+
+    /**
+     * Save button click event
+     */
+    $( "#manualqc_save").click( function(event) {
+      var wrap = $( "input[name='wrap']:checked" ).val();
+      var cover = $( "input[name='cover']:checked" ).val();
+      var motion_brain = $( "input[name='motion_brain']:checked" ).val();
+      var motion_out = $( "input[name='motion_out']:checked" ).val();
+      var ghost_brain = $( "input[name='ghost_brain']:checked" ).val();
+      var ghost_out = $( "input[name='ghost_out']:checked" ).val();
+      var spike = $( "input[name='spike']:checked" ).val();
+      var art_brain = $( "input[name='art_brain']:checked" ).val();
+      var art_out = $( "input[name='art_out']:checked" ).val();
+      var inhom = $( "input[name='inhom']:checked" ).val();
+      var overall = $( "input[name='overall']:checked" ).val();
+      var comments = $( "#comments" ).val();
+      var url = "/data/experiments/$!{mr_id}/assessors/$!{aid}"
+      var data = {
+        "neuroinfo:anatqc/manual/wrap": wrap,
+        "neuroinfo:anatqc/manual/cover": cover,
+        "neuroinfo:anatqc/manual/motion_brain": motion_brain,
+        "neuroinfo:anatqc/manual/motion_out": motion_out,
+        "neuroinfo:anatqc/manual/ghost_brain": ghost_brain,
+        "neuroinfo:anatqc/manual/ghost_out": ghost_out,
+        "neuroinfo:anatqc/manual/spike": spike,
+        "neuroinfo:anatqc/manual/art_brain": art_brain,
+        "neuroinfo:anatqc/manual/art_out": art_out,
+        "neuroinfo:anatqc/manual/inhom": inhom,
+        "neuroinfo:anatqc/manual/overall": overall,
+        "neuroinfo:anatqc/manual/comments": comments,
+        "XNAT_CSRF": csrfToken
+      }
+      $.ajax({
+        url: url + "?" + $.param(data),
+        type: "put",
+        beforeSend: function(xhr) {
+          $( "#manualqc_save" ).val("Saving").button({
+            disabled: true
+          });
+        },
+        success: function(response) {
+          $( "#manualqc_save" ).val("Saved");
+        },
+        error: function(xhr) {
+          $( "#manualqc_save" ).val("Error");
+        }
+      });
+    });
   });
 </script>
 
@@ -236,6 +488,7 @@
           <li><a href="#images-tab">Images</a></li>
           <li><a href="#mriqc-report-tab">MRIQC Report</a></li>
           <li><a href="#mriqc-iqms-tab">MRIQC IQMs</a></li>
+          <li><a href="#manualqc-tab">Manual QC</a></li>
           <li><a href="#files-tab">All Stored Files</a></li>
         </ul>
         <!-- begin images-tab -->
@@ -648,6 +901,281 @@
           </table>
         </div>
         <!-- end mriqc-iqms-tab -->
+        <!-- begin manualqc-tab -->
+        <div id="manualqc-tab" style="padding:0px; margin:0px">
+          <table>
+            <tr>
+              <td>
+                <h2>Wrapping</h2>
+                <hr style="border: 5px solid #e4efff"/>
+                <table>
+                  <tr>
+                    <td><input type="radio" name="wrap" id="wrap-none" value="None"></td>
+                    <td>None - no wrapping</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="wrap" id="wrap-mild" value="Mild"></td>
+                    <td>Mild - through skull but not brain</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="wrap" id="wrap-moderate" value="Moderate"></td>
+                    <td>Moderate - into brain a few slices</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="wrap" id="wrap-severe" value="Severe"></td>
+                    <td>Severe - prominently extends into brain</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <h2>Head Coverage</h2>
+                <hr style="border: 5px solid #e4efff"/>
+                <table>
+                  <tr>
+                    <td><input type="radio" name="cover" id="cover-good" value="Good"></td>
+                    <td>Good - full head coverage</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="cover" id="cover-mild" value="Mild"></td>
+                    <td>Mild - clips part of skull, but not brain</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="cover" id="cover-moderate" value="Moderate"></td>
+                    <td>Moderate - clips a few slices brain</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="cover" id="cover-severe" value="Severe"></td>
+                    <td>Severe - affects brain coverage</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <h2>Motion Ringing/Striping/Blurring - Affects Brain</h2>
+                <hr style="border: 5px solid #e4efff"/>
+                <table>
+                  <tr>
+                    <td><input type="radio" name="motion_brain" id="motion_brain-none" value="None"></td>
+                    <td>None</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="motion_brain" id="motion_brain-mild" value="Mild"></td>
+                    <td>Mild</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="motion_brain" id="motion_brain-moderate" value="Moderate"></td>
+                    <td>Moderate</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="motion_brain" id="motion_brain-severe" value="Severe"></td>
+                    <td>Severe</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <h2>Motion Ringing/Striping/Blurring - Outside of Brain</h2>
+                <hr style="border: 5px solid #e4efff"/>
+                <table>
+                  <tr>
+                    <td><input type="radio" name="motion_out" id="motion_out-none" value="None"></td>
+                    <td>None</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="motion_out" id="motion_out-mild" value="Mild"></td>
+                    <td>Mild</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="motion_out" id="motion_out-moderate" value="Moderate"></td>
+                    <td>Moderate</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="motion_out" id="motion_out-severe" value="Severe"></td>
+                    <td>Severe</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <h2>Ghosting/Blurring - Affects Brain</h2>
+                <hr style="border: 5px solid #e4efff"/>
+                <table>
+                  <tr>
+                    <td><input type="radio" name="ghost_brain" id="ghost_brain-none" value="None"></td>
+                    <td>None</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="ghost_brain" id="ghost_brain-mild" value="Mild"></td>
+                    <td>Mild</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="ghost_brain" id="ghost_brain-moderate" value="Moderate"></td>
+                    <td>Moderate</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="ghost_brain" id="ghost_brain-severe" value="Severe"></td>
+                    <td>Severe</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <h2>Ghosting/Blurring - Outside of Brain</h2>
+                <hr style="border: 5px solid #e4efff"/>
+                <table>
+                  <tr>
+                    <td><input type="radio" name="ghost_out" id="ghost_out-none" value="None"></td>
+                    <td>None</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="ghost_out" id="ghost_out-mild" value="Mild"></td>
+                    <td>Mild</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="ghost_out" id="ghost_out-moderate" value="Moderate"></td>
+                    <td>Moderate</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="ghost_out" id="ghost_out-severe" value="Severe"></td>
+                    <td>Severe</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <h2>RF Noise/Spiking</h2>
+                <hr style="border: 5px solid #e4efff"/>
+                <table>
+                  <tr>
+                    <td><input type="radio" name="spike" id="spike-none" value="None"></td>
+                    <td>None - no abnormal RF noise</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="spike" id="spike-mild" value="Mild"></td>
+                    <td>Mild - little static with no distinct pattern</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="spike" id="spike-moderate" value="Moderate"></td>
+                    <td>Moderate - low-level static with pattern (bands, spheres)</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="spike" id="spike-severe" value="Severe"></td>
+                    <td>Severe - RF spiking visible</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <h2>Other Artifact/Signal Loss - Affects Brain</h2>
+                <hr style="border: 5px solid #e4efff"/>
+                <table>
+                  <tr>
+                    <td><input type="radio" name="art_brain" id="art_brain-none" value="None"></td>
+                    <td>None</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="art_brain" id="art_brain-mild" value="Mild"></td>
+                    <td>Mild</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="art_brain" id="art_brain-moderate" value="Moderate"></td>
+                    <td>Moderate</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="art_brain" id="art_brain-severe" value="Severe"></td>
+                    <td>Severe</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <h2>Other Artifact/Signal Loss - Outside of Brain</h2>
+                <hr style="border: 5px solid #e4efff"/>
+                <table>
+                  <tr>
+                    <td><input type="radio" name="art_out" id="art_out-none" value="None"></td>
+                    <td>None</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="art_out" id="art_out-mild" value="Mild"></td>
+                    <td>Mild</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="art_out" id="art_out-moderate" value="Moderate"></td>
+                    <td>Moderate</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="art_out" id="art_out-severe" value="Severe"></td>
+                    <td>Severe</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <h2>Unexpected Inhomogeneity</h2>
+                <hr style="border: 5px solid #e4efff"/>
+                <table>
+                  <tr>
+                    <td><input type="radio" name="inhom" id="inhom-none" value="None"></td>
+                    <td>None</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="inhom" id="inhom-expected" value="Expected"></td>
+                    <td>Expected</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="inhom" id="inhom-moderate" value="Moderate"></td>
+                    <td>Unexpected - moderate</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="inhom" id="inhom-severe" value="Severe"></td>
+                    <td>Unexpected - severe</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <h2>Additional Comments</h2>
+                <textarea id="comments" style="width: 100%; height: 102px">$!{manual_comments}</textarea>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <h2>Overall QC Assessment</h2>
+                <hr style="border: 5px solid #e4efff"/>
+                <table>
+                  <tr>
+                    <td><input type="radio" name="overall" id="overall-pass" value="PASS"></td>
+                    <td>PASS - Data passed quality control</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="overall" id="overall-warn" value="WARN"></td>
+                    <td>WARN - Data have significant quality issues</td>
+                  </tr>
+                  <tr>
+                    <td><input type="radio" name="overall" id="overall-fail" value="FAIL"></td>
+                    <td>FAIL - Data failed quality control</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td><br/><input class="ui-button ui-widget ui-corner-all" id="manualqc_save" type="button" value="Save" /></td>
+            </tr>
+          </table>
+        </div>
+        <!-- end manual qc tab -->
         <!-- begin files tab -->
         <div id="files-tab" style="padding:0px; margin:2px">
           <table class="big-table">
