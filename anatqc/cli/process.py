@@ -46,10 +46,11 @@ def do(args):
     # morph job
     morph_outdir = None
     if 'morph' in args.sub_tasks:
-        morph.make_fs_license(args.fs_license)
         infile = os.path.join(*raw) + '.nii.gz'
         morph_outdir = B.derivatives_dir('anatqc-morph')
         morph_outdir = os.path.join(morph_outdir, 'anat', raw[1])
+        destination = os.path.join(morph_outdir, '.license')
+        morph.make_fs_license(args.fs_license, destination)
         if args.mock_fs:
             dirname = os.path.dirname(morph.__file__)
             tar = os.path.join(dirname, 'fs-mock.tar.gz')

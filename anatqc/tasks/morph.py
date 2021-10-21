@@ -8,23 +8,29 @@ from executors.models import Job
 
 logger = logging.getLogger(__name__)
 
-def make_fs_license(blob):
+def make_fs_license(blob, destination=None):
     '''
     Check for FreeSurfer license and create one from
     base64 encoded blob if one does not exist
 
     :param blob: Base64 encoded license text
     :type blob: str
+    :param destination: Destination for license file
+    :type destination: str
     '''
-    fshome = os.environ['FREESURFER_HOME']
-    license = os.path.join(fshome, 'license.txt')
-    if not os.path.exists(license):
+    if not destination:
+        fshome = os.environ['FREESURFER_HOME']
+        destination = os.path.join(fshome, 'license.txt')
+    destination = os.path.abspath(os.path.expanduser(destination))
+    if not os.path.exists(destination):
+        os.makedirs(os.path.dirname(destination), exist_ok=True)
         if not blob:
             raise FsLicenseError('you must provide a --fs-license')
         data = base64.b64decode(blob)
-        logger.debug('writing file %s', license)
-        with open(license, 'wb') as fo:
+        logger.debug('writing file %s', destination)
+        with open(destination, 'wb') as fo:
             fo.write(data)
+    os.environ['FS_LICENSE'] = destination
 
 class FsLicenseError(Exception):
     pass
