@@ -10,7 +10,7 @@ import anatqc
 import logging
 import tarfile
 import executors
-import tempfile as tf
+import tempfile
 import subprocess as sp
 from executors.models import Job, JobArray
 from anatqc.bids import BIDS
@@ -92,7 +92,7 @@ def do(args):
             run=args.run,
             bids=args.bids_dir,
             outdir=mriqc_outdir,
-            tempdir='/scratch',
+            tempdir=tempfile.gettempdir(),
             pipenv='/sw/apps/mriqc'
         )
         logger.info(json.dumps(task.command, indent=1))
