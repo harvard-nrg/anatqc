@@ -12,6 +12,10 @@ RUN alternatives --set python /usr/bin/python3
 # install pipenv
 RUN pip3 install pipenv
 
+# create a home directory for templateflow and mriqc cache
+RUN mkdir -p /home/anatqc
+ENV HOME=/home/anatqc
+
 # install freesurfer
 ARG FS_PREFIX=/sw/apps/freesurfer/
 ARG FS_URI="https://www.dropbox.com/s/bzpqywglrhommfw/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.1.tar.gz?dl=0"
@@ -86,6 +90,8 @@ RUN pipenv run python -c "from templateflow import api as tfapi; \
   tfapi.get('MNI152NLin2009cAsym', resolution=1, suffix='dseg', desc='carpet'); \
   tfapi.get('MNI152NLin2009cAsym', resolution=1, suffix='probseg', label=['CSF', 'GM', 'WM']); \
   tfapi.get('MNI152NLin2009cAsym', resolution=[1, 2], suffix='boldref')"
+# touch this directory to prevent mriqc check_latest from crashing
+RUN mkdir -p "${HOME}/.cache/mriqc"
 
 # install fsl
 ARG FSL_PREFIX="/sw/apps/fsl/"
