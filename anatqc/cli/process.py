@@ -126,6 +126,14 @@ def do(args):
             logger.info('creating anat-morph archive %s', archive)
             anatqc.archive(morph_outdir, archive)
 
+    # build data to upload to xnat
     R = Report(args.bids_dir, args.sub, args.ses, args.run)
     logger.info('building xnat artifacts to %s', args.artifacts_dir)
     R.build_assessment(args.artifacts_dir)
+
+    # upload data to xnat over rest api
+    if args.xnat_upload:
+        logger.info('Uploading artifacts to XNAT')
+        auth = yaxil.auth2(args.xnat_alias)
+        yaxil.storerest(auth, args.artifacts_dir, 'anatqc-resource')
+

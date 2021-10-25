@@ -60,10 +60,10 @@ def main():
         help='XNAT username')
     parser_process.add_argument('--xnat-pass',
         help='XNAT password')
+    parser_process.add_argument('--artifacts-dir', default='/artifacts',
+        help='Location for generated assessors and resources')
     parser_process.add_argument('--xnat-upload', action='store_true',
-        help='Create and upload XNAT XAR')
-    parser_process.add_argument('--keep-xar', action='store_true',
-        help='Do not delete XAR file')
+        help='Upload results to XNAT over REST API')
     parser_process.set_defaults(func=cli.process.do)
     # tandem (run get and process)
     parser_tandem = subparsers.add_parser('tandem', help='tandem -h')
@@ -99,6 +99,8 @@ def main():
         help='XNAT password')
     parser_tandem.add_argument('--artifacts-dir', default='/artifacts',
         help='Location for generated assessors and resources')
+    parser_tandem.add_argument('--xnat-upload', action='store_true',
+        help='Upload results to XNAT over REST API')
     parser_tandem.set_defaults(func=cli.tandem.do)
     args = parser.parse_args()
 
