@@ -42,7 +42,7 @@ def main():
         help='BIDS session')
     parser_process.add_argument('--mod', default='T1w',
         help='BIDS modality')
-    parser_process.add_argument('--run', default='1',
+    parser_process.add_argument('--run', default=1, type=int,
         help='BIDS run')
     parser_process.add_argument('--bids-dir', required=True,
         help='BIDS root directory')
@@ -60,7 +60,7 @@ def main():
         help='XNAT username')
     parser_process.add_argument('--xnat-pass',
         help='XNAT password')
-    parser_process.add_argument('--artifacts-dir', default='/artifacts',
+    parser_process.add_argument('--artifacts-dir',
         help='Location for generated assessors and resources')
     parser_process.add_argument('--xnat-upload', action='store_true',
         help='Upload results to XNAT over REST API')
@@ -73,7 +73,7 @@ def main():
         help='XNAT Project name')
     parser_tandem.add_argument('--bids-dir', required=True,
         help='Output BIDS directory')
-    parser_tandem.add_argument('--run', default='1',
+    parser_tandem.add_argument('--run', default=1, type=int,
         help='BIDS run')
     parser_tandem.add_argument('--partition', default='default',
         help='Job scheduler partition')
@@ -97,7 +97,7 @@ def main():
         help='XNAT username')
     parser_tandem.add_argument('--xnat-pass',
         help='XNAT password')
-    parser_tandem.add_argument('--artifacts-dir', default='/artifacts',
+    parser_tandem.add_argument('--artifacts-dir',
         help='Location for generated assessors and resources')
     parser_tandem.add_argument('--xnat-upload', action='store_true',
         help='Upload results to XNAT over REST API')

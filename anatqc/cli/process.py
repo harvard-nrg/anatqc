@@ -125,6 +125,13 @@ def do(args):
         if not os.path.exists(archive):
             logger.info('creating anat-morph archive %s', archive)
             anatqc.archive(morph_outdir, archive)
+    
+    # artifacts directory
+    if not args.artifacts_dir:
+        args.artifacts_dir = os.path.join(
+            morph_outdir,
+            'xnat-artifacts'
+        )
 
     # build data to upload to xnat
     R = Report(args.bids_dir, args.sub, args.ses, args.run)
