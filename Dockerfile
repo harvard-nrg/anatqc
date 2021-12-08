@@ -10,7 +10,7 @@ RUN dnf install -y python3 python3-devel
 RUN alternatives --set python /usr/bin/python3
 
 # install pipenv
-RUN pip3 install pipenv
+RUN pip3 install pipenv==2021.5.29
 
 # create a home directory for templateflow and mriqc cache
 RUN mkdir -p /home/anatqc
@@ -59,6 +59,7 @@ RUN mkdir -p "${MRIQC_PREFIX}"
 ENV PIPENV_VENV_IN_PROJECT=1
 WORKDIR "${MRIQC_PREFIX}"
 RUN pipenv install --skip-lock \
+  "setuptools<58" \
   "dipy" \
   "jinja2" \
   "matplotlib==2.2.2" \
@@ -132,7 +133,7 @@ RUN rm "/tmp/dcm2niix_lnx.zip"
 
 # install anatqc
 ARG AQC_PREFIX="/sw/apps/anatqc"
-ARG AQC_VERSION="0.4.4"
+ARG AQC_VERSION="0.4.5"
 RUN dnf install -y compat-openssl10
 RUN mkdir -p "${AQC_PREFIX}"
 ENV PIPENV_VENV_IN_PROJECT=1
