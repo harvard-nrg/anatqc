@@ -1,0 +1,7 @@
+anatqc:
+  t1w:
+    tags:
+      - .*#t1w_(?P<run>\d+).* 
+  t1w_vnav:
+    tags:
+      - .*#t1w_move_(?P<run>\d+).*

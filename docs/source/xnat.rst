@@ -19,17 +19,17 @@ Tagging your scans
 ------------------
 For AnatQC to discover `T1w`_ and `vNav`_ scans to process, you need to add notes to those scans in `XNAT`_. You can add notes using the ``Edit`` button located within the ``Actions`` box on the MR Session report page
 
-========= ============================ ===================================
+========= ============================ ==================================================
 Type      Example series               Note
-========= ============================ ===================================
-`T1w`_    ``ABCD_T1w_MPR_vNav``        ``ANAT_001, ANAT_002, ..., ANAT_N``
-`vNav`_   ``ABCD_T1w_MPR_vNav_setter`` ``MOVE_001, MOVE_002, ..., MOVE_N``
-========= ============================ ===================================
+========= ============================ ==================================================
+`T1w`_    ``ABCD_T1w_MPR_vNav``        ``#T1w_001, #T1w_002, ..., #T1w_N``
+`vNav`_   ``ABCD_T1w_MPR_vNav_setter`` ``#T1w_move_001, #T1w_move_002, ..., #T1w_move_N``
+========= ============================ ==================================================
 
 The image below displays an MR Session report page with populated notes
 
 .. note::
-   Note that if an ``ANAT`` scan has a corresponding ``MOVE`` scan, they should be assigned matching numbers. For example, ``MOVE_001`` would correspond to ``ANAT_001``.
+   Note that if a ``T1w`` scan has a corresponding ``vNav`` scan, they should be assigned matching numbers. For example, ``#T1w_move_001`` would correspond to ``#T1w_001``.
 
 .. image:: images/xnat-scan-notes.png
 
@@ -49,14 +49,14 @@ This should bring up a small form with several configurable settings. Continue r
 
 run
 ^^^
-This should be set to the integer value of the scan you want to process. If there's a corresponding ``MOVE`` scan, that scan will also be processed
+This should be set to the integer value of the scan you want to process. If there's a corresponding ``move`` scan, that scan will also be processed
 
 ============== =======
-ANAT scan      run
+T1w scan       run
 ============== =======
-``ANAT_001``   1
-``ANAT_002``   2
-``ANAT_999``   999
+``#T1w_001``   1
+``#T1w_002``   2
+``#T1w_999``   999
 ============== =======
 
 subtasks

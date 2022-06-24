@@ -66,10 +66,14 @@ class Task(tasks.BaseTask):
             '--debug',
             '--steps'
         ]
+        cmd.extend(steps)
+        if self._tempdir:
+            cmd.extend([
+                '--scratch-dir', self._tempdir
+            ])
         if self._pipenv:
             os.chdir(self._pipenv)
             cmd[:0] = ['pipenv', 'run']
-        cmd.extend(steps)
         logdir = self.logdir()
         # copy json sidecar into output logs directory
         sidecar = BIDS.sidecar_for_image(self._infile)

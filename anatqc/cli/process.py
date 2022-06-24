@@ -61,7 +61,8 @@ def do(args):
         else:
             task = morph.Task(
                 infile,
-                morph_outdir
+                morph_outdir,
+                tempdir=tempfile.gettempdir()
             )
             logger.info(json.dumps(task.command, indent=1))
             jarray.add(task.job)

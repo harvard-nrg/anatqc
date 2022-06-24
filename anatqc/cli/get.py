@@ -22,18 +22,21 @@ def do(args):
     os.environ['XNAT_HOST'] = auth.url
     os.environ['XNAT_USER'] = auth.username
     os.environ['XNAT_PASS'] = auth.password
-    # query "MOVE_\d+" and "ANAT_\d+" into a dictionary
+
+    conf = yaml.safe_load(open(args.config))
+
+    # query T1w and vNav scans from XNAT
     with yaxil.session(auth) as ses:
         scans = col.defaultdict(dict)
         for scan in ses.scans(label=args.label, project=args.project):
             note = scan['note']
-            re_move = re.match('MOVE_(\d+)', note)
-            re_anat = re.match('ANAT_(\d+)', note)
-            if re_move:
-                run = re_move.group(1)
+            move_match = match(note, conf['anatqc']['t1w_vnav']['tags'])
+            anat_match = match(note, conf['anatqc']['t1w']['tags'])
+            if move_match:
+                run = move_match.group('run')
                 scans[run]['move'] = scan['id']
-            if re_anat:
-                run = re_anat.group(1)
+            if anat_match:
+                run = anat_match.group('run')
                 scans[run]['anat'] = scan['id']
     logger.info(json.dumps(scans, indent=2))
 
@@ -106,4 +109,11 @@ def get_anat(args, auth, run, scan, verbose=False):
     logger.info(sp.list2cmdline(cmd))
     if not args.dry_run:
         sp.check_output(cmd, input=config.encode('utf-8'))
+
+def match(note, patterns):
+    for pattern in patterns:
+        match = re.match(pattern, note, flags=re.IGNORECASE)
+        if match:
+            return match
+    return None
 

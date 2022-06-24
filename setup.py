@@ -27,7 +27,7 @@ setup(
     url=about['__url__'],
     packages=find_packages(),
     package_data={
-        '': ['*.tar.gz']
+        '': ['*.tar.gz', '*.yaml']
     },
     include_package_data=True,
     scripts=[

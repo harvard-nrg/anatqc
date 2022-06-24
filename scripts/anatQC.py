@@ -4,12 +4,15 @@ import anatqc
 import logging
 import argparse as ap
 import anatqc.cli as cli
+import anatqc.config as config
 
 logger = logging.getLogger(__name__)
 
 def main():
     parser = ap.ArgumentParser()
     parser.add_argument('-v', '--verbose', action='store_true')
+    parser.add_argument('-c', '--config', default=config.default(),
+        help='AnatQC configuration file')
     subparsers = parser.add_subparsers(help='sub-command help')
     # get mode
     parser_get = subparsers.add_parser('get', help='get -h')
@@ -27,6 +30,8 @@ def main():
         help='XNAT username')
     parser_get.add_argument('--xnat-pass',
         help='XNAT password')
+    parser_get.add_argument('--dry-run', action='store_true',
+        help='Do not execute any jobs')
     parser_get.set_defaults(func=cli.get.do)
     # process mode
     parser_process = subparsers.add_parser('process', help='process -h')
@@ -47,7 +52,7 @@ def main():
     parser_process.add_argument('--bids-dir', required=True,
         help='BIDS root directory')
     parser_process.add_argument('--dry-run', action='store_true',
-        help='Do not actually execute any jobs')
+        help='Do not execute any jobs')
     parser_process.add_argument('--sub-tasks', nargs='+', default=['morph', 'mriqc', 'vnav'],
         help='Run only certain sub tasks')
     parser_process.add_argument('--fs-license',
@@ -82,7 +87,7 @@ def main():
     parser_tandem.add_argument('--rate-limit', type=int, default=None, 
         help='Rate limit the number of tasks executed in parallel (1=serial)')
     parser_tandem.add_argument('--dry-run', action='store_true',
-        help='Do not actually execute any jobs')
+        help='Do not execute any jobs')
     parser_tandem.add_argument('--sub-tasks', nargs='+', default=['morph', 'mriqc', 'vnav'],
         help='Run only certain sub tasks')
     parser_tandem.add_argument('--fs-license',
