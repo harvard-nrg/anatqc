@@ -1,4 +1,4 @@
-FROM centos:8
+FROM rockylinux:8
 
 # install useful (but not entirely necessary) things
 RUN dnf install -y git vim
