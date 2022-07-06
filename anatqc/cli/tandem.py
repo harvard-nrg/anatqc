@@ -38,10 +38,12 @@ def do(args):
             anat_match = match(note, conf['anatqc']['t1w']['tags'])
             if move_match:
                 run = move_match.group('run')
+                run = re.sub('[^0-9]', '', run or '1')
                 if int(run) == int(args.run):
                     scans[run]['move'] = scan['id']
             if anat_match:
                 run = anat_match.group('run')
+                run = re.sub('[^0-9]', '', run or '1')
                 if int(run) == int(args.run):
                     scans[run]['anat'] = scan['id']
     subject_label = scan['subject_label']
@@ -65,8 +67,8 @@ def do(args):
 
 def match(note, patterns):
     for pattern in patterns:
-        match = re.match(pattern, note, flags=re.IGNORECASE)
-        if match:
-            return match
+        m = re.match(pattern, note, flags=re.IGNORECASE)
+        if m:
+            return m
     return None
 

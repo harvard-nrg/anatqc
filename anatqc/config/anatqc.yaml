@@ -1,7 +1,7 @@
 anatqc:
   t1w:
     tags:
-      - .*#t1w_(?P<run>\d+).* 
+      - .*(^|\s)#t1w(?P<run>_\d+)?(\s|$).*
   t1w_vnav:
     tags:
-      - .*#t1w_move_(?P<run>\d+).*
+      - .*(^|\s)#t1w_move(?P<run>_\d+)?(\s|$).*

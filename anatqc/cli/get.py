@@ -34,9 +34,11 @@ def do(args):
             anat_match = match(note, conf['anatqc']['t1w']['tags'])
             if move_match:
                 run = move_match.group('run')
+                run = re.sub('[^0-9]', '', run or '1')
                 scans[run]['move'] = scan['id']
             if anat_match:
                 run = anat_match.group('run')
+                run = re.sub('[^0-9]', '', run or '1')
                 scans[run]['anat'] = scan['id']
     logger.info(json.dumps(scans, indent=2))
 
@@ -112,8 +114,8 @@ def get_anat(args, auth, run, scan, verbose=False):
 
 def match(note, patterns):
     for pattern in patterns:
-        match = re.match(pattern, note, flags=re.IGNORECASE)
-        if match:
-            return match
+        m = re.match(pattern, note, flags=re.IGNORECASE)
+        if m:
+            return m
     return None
 
