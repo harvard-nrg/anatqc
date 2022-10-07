@@ -96,6 +96,7 @@ def do(args):
             tempdir=tempfile.gettempdir(),
             pipenv='/sw/apps/mriqc'
         )
+        os.environ['OPENBLAS_NUM_THREADS'] = '1'
         logger.info(json.dumps(task.command, indent=1))
         jarray.add(task.job)
 
