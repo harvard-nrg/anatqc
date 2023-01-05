@@ -57,7 +57,26 @@ def do(args):
             logger.info('extracting mock fs data %s to %s', tar, morph_outdir)
             os.makedirs(morph_outdir, exist_ok=True)
             with tarfile.open(tar) as tf:
-                tf.extractall(morph_outdir)
+                def is_within_directory(directory, target):
+                    
+                    abs_directory = os.path.abspath(directory)
+                    abs_target = os.path.abspath(target)
+                
+                    prefix = os.path.commonprefix([abs_directory, abs_target])
+                    
+                    return prefix == abs_directory
+                
+                def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+                
+                    for member in tar.getmembers():
+                        member_path = os.path.join(path, member.name)
+                        if not is_within_directory(path, member_path):
+                            raise Exception("Attempted Path Traversal in Tar File")
+                
+                    tar.extractall(path, members, numeric_owner) 
+                    
+                
+                safe_extract(tf, morph_outdir)
         else:
             task = morph.Task(
                 infile,
