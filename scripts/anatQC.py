@@ -10,9 +10,12 @@ logger = logging.getLogger(__name__)
 
 def main():
     parser = ap.ArgumentParser()
-    parser.add_argument('-v', '--verbose', action='store_true')
+    parser.add_argument('-v', '--verbose', action='store_true',
+        help='Enable verbose logging')
     parser.add_argument('-c', '--config', default=config.default(),
         help='AnatQC configuration file')
+    parser.add_argument('--insecure', action='store_true',
+        help='Disable SSL certificate verification')
     subparsers = parser.add_subparsers(help='sub-command help')
     # get mode
     parser_get = subparsers.add_parser('get', help='get -h')
