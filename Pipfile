@@ -9,10 +9,10 @@ sphinx-rtd-theme = "*"
 
 [packages]
 yaxil = "*"
-selfie = "*"
+selfie = ">=0.3.0"
 executors = "*"
 morphometry = "*"
-vnav = "*"
+vnav = ">=0.3.1"
 anatqc = {path = ".",editable = true}
 
 [requires]
