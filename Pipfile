@@ -8,7 +8,7 @@ sphinx = "*"
 sphinx-rtd-theme = "*"
 
 [packages]
-yaxil = ">=0.9.2"
+yaxil = ">=0.9.3"
 selfie = ">=0.3.0"
 executors = "*"
 morphometry = "*"
