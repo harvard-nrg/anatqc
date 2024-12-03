@@ -1,54 +1,164 @@
-import org.gradle.internal.jvm.Jvm
+/*
+ * xnat-template-plugin: build.gradle
+ * XNAT https://www.xnat.org
+ * Copyright (c) 2005-2021, Washington University School of Medicine
+ * All Rights Reserved
+ *
+ * Released under the Simplified BSD.
+ */
 
-// TODO: This block is required for the "xnat-data-builder" plugin to function.
 buildscript {
     ext {
-        vXnat = "1.7.6"
+        vXnat = "1.8.0"
     }
     repositories {
-        mavenLocal()
-        mavenCentral()
-        jcenter()
-        gradlePluginPortal()
-        maven { url "https://nrgxnat.jfrog.io/nrgxnat/libs-release" }
-        maven { url "https://nrgxnat.jfrog.io/nrgxnat/libs-snapshot" }
-    }
-    dependencies {
-        classpath "org.nrg.xnat.build:xnat-data-builder:${vXnat}"
-        classpath "io.franzbecker:gradle-lombok:3.2.0"
-        classpath "io.spring.gradle:dependency-management-plugin:1.0.8.RELEASE"
+       maven { url "https://nrgxnat.jfrog.io/nrgxnat/libs-release" }
+       maven { url "https://nrgxnat.jfrog.io/nrgxnat/libs-snapshot" }
     }
 }
 
-group "org.nrg.ssbc"
+// TODO: This is the minimum set of Gradle plugins required to build most XNAT plugins.
+//       You may include many others, including plugins for testing and test coverage,
+//       IDE integration, and more.
+plugins {
+    id "jacoco"
+    id "java"
+    id "com.palantir.git-version" version "0.12.1"
+    id "io.franzbecker.gradle-lombok" version "4.0.0"
+    id "io.spring.dependency-management" version "1.0.11.RELEASE"
+    id "org.nrg.xnat.build.xnat-data-builder" version "1.8.0"
+}
+
+// TODO: Change the group and version to values appropriate for your plugin project.
+// NOTE: You should not leave the group value set to "org.nrg.xnatx.plugins"! Use
+//       something to indicate who developed the plugin and follow the standard
+//       Maven naming conventions: https://maven.apache.org/guides/mini/guide-naming-conventions.html
+//       For example, if a group at Miskatonic University developed a plugin, the
+//       group might be "edu.miskatonic.imaging.xnat".
+group "org.neuroinfo.anatqc"
 version "1.0.0"
+description "AnatQC Plugin for XNAT 1.8"
 
-apply plugin: "java"
-apply plugin: "xnat-data-builder"
-apply plugin: "io.franzbecker.gradle-lombok"
-apply plugin: "io.spring.dependency-management"
-
+// TODO: This provides access to all of these repositories for dependency resolution.
 repositories {
     mavenLocal()
-    jcenter()
-    mavenCentral()
     maven { url "https://nrgxnat.jfrog.io/nrgxnat/libs-release" }
     maven { url "https://nrgxnat.jfrog.io/nrgxnat/libs-snapshot" }
+    mavenCentral()
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
+// TODO: This defines a dependency package, specifically the XNAT NRG parent pom, which specifies
+//       versions for all of XNAT's dependencies. This helps ensure that plugins are building
+//       against the same versions of various libraries as XNAT itself.
 dependencyManagement.imports {
     mavenBom "org.nrg:parent:${vXnat}"
 }
 
+// TODO: This is a pretty minimal set of dependencies, so don't worry if you need to add more.
 dependencies {
-    implementation "org.nrg.xnat:web"
-    implementation "org.nrg.xnat:xnat-data-models"
+    implementation enforcedPlatform("org.nrg:parent:${vXnat}")
+
+    implementation("org.nrg.xnat:web") {
+        transitive = false
+    }
+    implementation("org.nrg:dicom-xnat-mx") {
+        transitive = false
+    }
+    implementation("org.nrg.xnat:xnat-data-models") {
+        transitive = false
+    }
     implementation "org.nrg.xdat:core"
+    implementation "org.nrg:dicom-xnat-util"
+    implementation "org.nrg:prefs"
+    implementation "org.nrg:framework"
+    implementation "dcm4che:dcm4che-core"
     implementation "io.springfox:springfox-swagger2"
     implementation "io.springfox:springfox-swagger-ui"
+
+    compileOnly "log4j:log4j"
+
+    testImplementation "org.junit.jupiter:junit-jupiter-api"
+    testImplementation "org.springframework:spring-test"
+    testImplementation "com.github.sbrannen:spring-test-junit5"
+    testImplementation "org.mockito:mockito-core"
+    testImplementation "org.assertj:assertj-core"
+    testImplementation "com.h2database:h2"
+
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+    testRuntimeOnly "ch.qos.logback:logback-classic"
+}
+
+// Pulls in the Jenkins BUILD_NUMBER environment variable if available.
+def buildDate = new Date()
+def buildNumber = System.getenv().BUILD_NUMBER?.toInteger() ?: "Manual"
+def isDirty, branchName, gitHash, gitHashFull, commitDistance, lastTag, isCleanTag
+
+try {
+    def gitDetails = versionDetails()
+    isDirty = gitVersion().endsWith ".dirty"
+    branchName = gitDetails.branchName ?: "Unknown"
+    gitHash = gitDetails.gitHash
+    gitHashFull = gitDetails.gitHashFull
+    commitDistance = gitDetails.commitDistance
+    lastTag = gitDetails.lastTag
+    isCleanTag = gitDetails.isCleanTag
+} catch (IllegalArgumentException e) {
+    logger.info "Got an error trying to read VCS metadata from git. It's possible this project is not under VCS control. Using placeholder values for manifest entries."
+    isDirty = true
+    branchName = "Unknown"
+    gitHash = "None"
+    gitHashFull = "None"
+    commitDistance = 0
+    lastTag = "None"
+    isCleanTag = false
+}
+
+ext.gitManifest = manifest {
+    attributes "Application-Name": project.description,
+            "Build-Date": buildDate,
+            "Build-Number": buildNumber,
+            "Implementation-Version": project.version,
+            "Implementation-Sha": gitHash,
+            "Implementation-Sha-Full": gitHashFull,
+            "Implementation-Commit": commitDistance,
+            "Implementation-LastTag": lastTag,
+            "Implementation-Branch": branchName,
+            "Implementation-CleanTag": isCleanTag,
+            "Implementation-Dirty": isDirty
+}
+
+logger.info """
+Building artifacts with manifest attributes:
+
+ * Build-Date:              ${buildDate}
+ * Build-Number:            ${buildNumber}
+ * Implementation-Version:  ${version}
+ * Implementation-Sha-Full: ${gitHashFull}
+ * Implementation-Sha:      ${gitHash}
+ * Implementation-Commit:   ${commitDistance}
+ * Implementation-LastTag:  ${lastTag}
+ * Implementation-Branch:   ${branchName}
+ * Implementation-CleanTag: ${isCleanTag}
+ * Implementation-Dirty:    ${isDirty}
+"""
+
+// TODO: This configures the compileJava task to call the xnatDataBuilder task before
+//       trying to compile any Java code in the plugin. If your plugin includes one or
+//       more custom data types, you'll need to generate source code for those datatypes
+//       before you can use them in your Java code.
+compileJava.dependsOn project.tasks["xnatDataBuilder"]
+
+configurations {
+    all {
+        exclude group: "junit"
+        exclude group: "net.logstash.logback"
+        exclude group: "org.nrg.xnat.pipeline"
+        exclude group: "org.slf4j", module: "jcl-over-slf4j"
+        exclude group: "org.slf4j", module: "log4j-over-slf4j"
+        exclude group: "org.slf4j", module: "slf4j-log4j12"
+        exclude group: "org.slf4j", module: "slf4j-simple"
+    }
+    implementation.extendsFrom(implementAndInclude)
 }
 
 lombok {
@@ -56,34 +166,84 @@ lombok {
     sha256 = dependencyManagement.importedProperties["lombok.checksum"] as String
 }
 
-def javaVersion = Jvm.current().javaVersion
-if (javaVersion.java8Compatible || javaVersion.java9Compatible) {
-    if (hasProperty("rt.17.jar")) {
-        // Solution for bootstrap classpath warning and possible issues with compatibility with 1.7 libraries
-        // was taken from this post on discuss.gradle.org: http://bit.ly/24xD9j0
-        def rt17jar = property "rt.17.jar"
-        logger.info "Using ${rt17jar} as the bootstrap class path jar."
-        gradle.projectsEvaluated {
-            tasks.withType(JavaCompile) {
-                options.fork = true
-                options.compilerArgs << "-XDignore.symbol.file"
-                options.bootstrapClasspath = files(rt17jar as String)
-            }
-        }
-    } else {
-        logger.warn "No value was set for the rt.17.jar build property, using the default bootstrap class path. You should consider setting rt.17.jar to indicate a jar file containing the Java 1.7 run-time library:\n"
-        logger.warn "  ./gradlew -Prt.17.jar=rt-1.7.0_45.jar war\n"
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = false
+        csv.required = true
+        html.required = true
     }
+}
+
+java {
+    // TODO: As of the 1.8.x release, XNAT is built as a Java 8-compatible (i.e. JDK 1.8)
+    //       application. All plugins must be 1.8 compatible as well. This does NOT mean
+    //       the code must be compiled with Java 8, just that the compiled byte code must
+    //       be compatible with running in a Java 8 environment.
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+// TODO: This builds a sources jar that pulls in the manifest with VCS info from above.
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier "sources"
+    manifest {
+        from gitManifest
+    }
+    from sourceSets.main.allSource
+}
+
+// TODO: This builds a javadoc jar that pulls in the manifest with VCS info from above.
+task javadocJar(type: Jar) {
+    classifier "javadoc"
+    manifest {
+        from gitManifest
+    }
+    from javadoc.destinationDir
+}
+
+// TODO: This builds a regular classes jar that pulls in the manifest with VCS info from above.
+//       For the most part this jar isn't necessary: what you really want is the plugin jar.
+jar {
+    dependsOn test, sourcesJar, javadocJar
+    enabled = true
+    manifest {
+        from gitManifest
+    }
+}
+
+// TODO: This builds the XNAT plugin jar that pulls in the manifest with VCS info from above.
+//       This includes all compiled Java classes (including generated classes), any schema
+//       files, JavaScript and Velocity template resources, and the XNAT plugin identifier
+//       properties file, in this case named META-INF/xnat/templatePlugin-plugin.properties.
+task xnatPluginJar(type: Jar) {
+    dependsOn test, sourcesJar, javadocJar
+    zip64 true
+    archiveClassifier.set "xpl"
+    manifest {
+        from gitManifest
+    }
+
+    // files and folders with "-dev" or "--xx" in their name
+    // will not be in the compiled jar
+    exclude "**/resources/**/*-dev**"
+    exclude "**/resources/**/*--xx**"
+    from {
+        configurations.implementAndInclude.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+    with jar
 }
 
 sourceSets {
     main {
         java {
-            srcDir "src/main/java"
             srcDir "build/xnat-generated/src/main/java"
         }
         resources {
-            srcDir "src/main/resources"
             srcDir "build/xnat-generated/src/main/resources"
         }
     }
