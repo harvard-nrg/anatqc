@@ -1,7 +1,15 @@
 anatqc:
-  t1w:
-    tags:
+  tags:
+    t1w:
       - .*(^|\s)#t1w(?P<run>_\d+)?(\s|$).*
-  t1w_vnav:
-    tags:
+    vnav:
       - .*(^|\s)#t1w_move(?P<run>_\d+)?(\s|$).*
+  params:
+    vnav:
+      syngo_MR_E11:
+        ABCD_T1w_MPR_vNav:
+          min: 144
+          max: 168
+        PBN_T1w_MPR_vNav:
+          min: 136
+          max: 160

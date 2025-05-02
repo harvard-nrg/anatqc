@@ -38,20 +38,14 @@ MRIQC_METRICS = [
     'wm2max'
 ]
 
-PROTOCOL_SETTINGS = {
-    'ABCD_T1w_MPR_vNav': {
-        'min': 144,
-        'max': 168
-    }
-}
-
 class Report:
-    def __init__(self, bids, sub, ses, run):
+    def __init__(self, bids, sub, ses, run, params):
         self.module = os.path.dirname(__file__)
         self.bids = bids
         self.sub = sub
         self.run = run
         self.ses = ses if ses else ''
+        self.params = params
  
     def getdirs(self):
         self.dirs = {
@@ -203,7 +197,7 @@ class Report:
             mriqc = json.load(fo)
         for metric in MRIQC_METRICS:
             value = mriqc[metric]
-            if isinstance(value, np.float):
+            if isinstance(value, float):
                 value = floatfmt(value)
             etree.SubElement(mriqc_elm, metric).text = str(value)
         # add <morph> element
@@ -248,9 +242,11 @@ class Report:
             if vnav['Failed']:
                 moco_fail = vnav['Failed']['Acquisition']
             T1w_protocol = self.protocol('morph')
-            vnav_min = PROTOCOL_SETTINGS[T1w_protocol]['min']
-            vnav_max = PROTOCOL_SETTINGS[T1w_protocol]['max']
-            logger.info('vNav min=%s, max=%s (%s)', vnav_min, vnav_max, T1w_protocol)
+            T1w_software = self.software_version('morph')
+            logger.info(f'looking up vNav settings for software={T1w_software}, series={T1w_protocol}')
+            vnav_min = self.params['vnav'][T1w_software][T1w_protocol]['min']
+            vnav_max = self.params['vnav'][T1w_software][T1w_protocol]['max']
+            logger.info(f'found vNav settings min={vnav_min}, max={vnav_max}')
             etree.SubElement(vnav_elm, 'vnav_min').text = str(vnav_min)
             etree.SubElement(vnav_elm, 'vnav_max').text = str(vnav_max)
             etree.SubElement(vnav_elm, 'vnav_acq_tot').text = str(n_vnav_acq)
@@ -295,6 +291,15 @@ class Report:
         with open(sidecar) as fo:
             js = json.load(fo)
         return js['ProtocolName']
+
+    def software_version(self, task):
+        basename = os.path.basename(self.dirs[task])
+        sidecar = os.path.join(self.dirs[task], 'logs', basename + '.json')
+        if not os.path.exists(sidecar):
+            raise FileNotFoundError(sidecar)
+        with open(sidecar) as fo:
+            js = json.load(fo)
+        return js['SoftwareVersions']
 
 class AssessmentError(Exception):
     pass

@@ -16,4 +16,4 @@ vnav = ">=0.3.1"
 anatqc = {path = ".",editable = true}
 
 [requires]
-python_version = "3.6.8"
+python_version = "3"

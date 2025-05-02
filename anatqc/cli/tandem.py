@@ -38,8 +38,8 @@ def do(args):
         scans = col.defaultdict(dict)
         for scan in ses.scans(label=args.label, project=args.project):
             note = scan['note']
-            move_match = match(note, conf['anatqc']['t1w_vnav']['tags'])
-            anat_match = match(note, conf['anatqc']['t1w']['tags'])
+            move_match = match(note, conf['anatqc']['tags']['vnav'])
+            anat_match = match(note, conf['anatqc']['tags']['t1w'])
             if move_match:
                 run = move_match.group('run')
                 run = re.sub('[^0-9]', '', run or '1')
