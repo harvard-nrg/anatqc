@@ -4,7 +4,7 @@ FROM rockylinux:8
 RUN dnf install -y git vim
 
 # install some things
-RUN dnf install -y python3 python3-devel
+RUN dnf install -y python3 python3-devel redhat-lsb
 
 # set python to python3
 RUN alternatives --set python /usr/bin/python3
@@ -18,7 +18,7 @@ ENV HOME=/home/anatqc
 
 # install freesurfer
 ARG FS_PREFIX=/sw/apps/freesurfer/
-ARG FS_URI="https://www.dropbox.com/s/bzpqywglrhommfw/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.1.tar.gz?dl=0"
+ARG FS_URI="https://www.dropbox.com/scl/fi/4ywecq1m21zce9aq4tp8y/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.1.tar.gz?rlkey=24uvi74bcaxtoixv4zygvqxgn&st=dr49yk40&dl=0"
 RUN mkdir -p ${FS_PREFIX}
 RUN curl -L -s "${FS_URI}" | tar -C "${FS_PREFIX}" -xzf - \
   --strip-components=1 \
@@ -96,7 +96,7 @@ RUN mkdir -p "${HOME}/.cache/mriqc"
 
 # install fsl
 ARG FSL_PREFIX="/sw/apps/fsl/"
-ARG FSL_URI="https://www.dropbox.com/s/p8go1t8kcoe41pz/fsl-6.0.4-centos7_64.tar.gz?dl=0"
+ARG FSL_URI="https://www.dropbox.com/scl/fi/3q2292enpxh5guy0rywsu/fsl-6.0.4-centos7_64.tar.gz?rlkey=eahcgw5uw3zdqyv8nns9gpkpn&st=mar6k2fu&dl=0"
 RUN dnf install -y libquadmath
 RUN mkdir -p "${FSL_PREFIX}"
 RUN curl -L -s "${FSL_URI}" | tar -C "${FSL_PREFIX}" -xzf - \
@@ -114,7 +114,7 @@ RUN tcsh @update.afni.binaries -package linux_centos_7_64 -do_extras -bindir "${
 
 # install ants
 ARG ANTS_PREFIX="/sw/apps/ants"
-ARG ANTS_URI="https://dl.dropbox.com/s/2f4sui1z6lcgyek/ANTs-Linux-centos5_x86_64-v2.2.0-0740f91.tar.gz"
+ARG ANTS_URI="https://www.dropbox.com/scl/fi/vx73ic3swnfrqatbtkd6p/ANTs-Linux-centos5_x86_64-v2.2.0-0740f91.tar.gz?rlkey=5vgzi4z39ewsszillaoya65al&st=ze3svfwf&dl=0"
 RUN dnf install -y libGLw libGLU gsl
 RUN ln -s /usr/lib64/libgsl.so.23 /usr/lib64/libgsl.so.0
 RUN mkdir -p "${ANTS_PREFIX}"
