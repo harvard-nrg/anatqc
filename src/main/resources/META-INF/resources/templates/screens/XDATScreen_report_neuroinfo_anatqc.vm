@@ -23,7 +23,6 @@
 #set($fs_data = $content.getURI("/data/experiments/$!{mr_id}/assessors/$!{aid}/files/fs-data/$!{aid}_freesurfer.tar.gz"))
 #set($vnav_scan = $!item.getProperty("${dtype}/vnav_scan_id"))
 #set($moco_fail = $!item.getProperty("vnav/vnav_failed"))
-#set($delete_url = $content.getURI("/app/action/XDATActionRouter/xdataction/delete/search_element/$!{dtype}/search_field/$!{dtype}.ID/search_value/$!{aid}"))
 
 #set($manual_wrap = $!item.getProperty("manual/wrap"))
 #set($manual_cover= $!item.getProperty("manual/cover"))
@@ -39,6 +38,42 @@
 #set($manual_comments = $!item.getProperty("manual/comments"))
 
 <script type="text/javascript">
+  $( function() {
+    /**
+     * Delete button
+     */
+    var assessorId = "$!{aid}".trim() || "NO_ASSESSOR_ID_FOUND";
+    var sessionId  = "$!{mr_id}";
+
+    var deleteUrl = XNAT.url.restUrl(
+        '/data/experiments/' + assessorId,
+	{
+            removeFiles: true,
+            XNAT_CSRF: window.csrfToken
+        },
+	false,
+	false 
+    );
+
+    $('#delete-assessor-btn').on('click', function(e){
+        e.preventDefault();       // stop the anchor from navigating anywhere
+        e.stopPropagation();      // stop it from also closing/triggering other dropdown handlers unexpectedly, if needed
+
+        if (!confirm('Permanently delete this assessor and all associated files?')) return;
+
+        XNAT.xhr.delete({
+            url: deleteUrl,
+            headers: { 'X-XSRF-TOKEN': window.csrfToken },
+            success: function(){
+                window.location.href = XNAT.url.rootUrl('/data/experiments/' + sessionId);
+            },
+            fail: function(e){
+                alert('Delete failed: ' + (e.statusText || e.status));
+            }
+        });
+    });
+  });
+
   $( function() {
     /**
      * Turn HTML elements into jQuery UI elements
@@ -385,7 +420,7 @@
           <li><div>Action</div>
             <ul>
               <li><div><a href=$content.getURI("/data/experiments/$!{mr_id}/assessors/$!{aid}?format=xml")>View XML</a></div></li>
-              <li><div><a href="$!{delete_url}">Delete</a></div></li>
+              <li><div><a id="delete-assessor-btn" href="#">Delete</a></div></li>
             </ul>
           </li>
         </ul>
@@ -1147,7 +1182,7 @@
             <tr>
               <td>
                 <h2>Additional Comments</h2>
-                <textarea id="comments" style="width: 100%; height: 102px">$!{manual_comments}</textarea>
+                <textarea id="comments" maxlength="255" style="width: 100%; height: 60px">$!{manual_comments}</textarea>
               </td>
             </tr>
             <tr>
