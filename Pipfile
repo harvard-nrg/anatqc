@@ -12,7 +12,7 @@ yaxil = ">=0.9.3"
 selfie = ">=0.3.0"
 executors = "*"
 morphometry = "*"
-vnav = ">=0.6.0"
+vnav = ">=0.7.0"
 anatqc = {path = ".",editable = true}
 
 [requires]

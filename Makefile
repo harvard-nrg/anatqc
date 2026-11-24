@@ -6,7 +6,7 @@ test:
 dist:
 	python setup.py sdist bdist_wheel --universal
 publish:
-	pip install 'twine>=1.5.0' wheel
+	pip install 'twine>=1.5.0' wheel setuptools
 	python setup.py sdist bdist_wheel --universal
 	twine upload dist/*.whl
 	rm -fr build dist .egg anatqc.egg-info
