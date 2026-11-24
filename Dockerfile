@@ -4,7 +4,7 @@ FROM rockylinux:8
 RUN dnf install -y git vim
 
 # install some things
-RUN dnf install -y python3 python3-devel redhat-lsb
+RUN dnf install -y python3 python3-devel redhat-lsb ca-certificates
 
 # set python to python3
 RUN alternatives --set python /usr/bin/python3
@@ -133,7 +133,7 @@ RUN rm "/tmp/dcm2niix_lnx.zip"
 
 # install anatqc
 ARG AQC_PREFIX="/sw/apps/anatqc"
-ARG AQC_VERSION="0.6.0"
+ARG AQC_VERSION="0.6.2"
 RUN dnf install -y compat-openssl10
 RUN mkdir -p "${AQC_PREFIX}"
 ENV PIPENV_VENV_IN_PROJECT=1
